@@ -8,7 +8,7 @@ module Tweetkit
 
     CONVENIENCE_HEADERS = Set.new([:accept, :content_type])
 
-    def get(url, options = {})
+    def get(url, **options)
       request :get, url, parse_query_and_convenience_headers(options)
     end
 
@@ -21,7 +21,6 @@ module Tweetkit
         end
       end
 
-
       options = options[:headers].merge(oauth_headers)
 
       url = URI.parse(Tweetkit::Default.endpoint + path)
@@ -31,6 +30,7 @@ module Tweetkit
       else
         response = Faraday.post(url, data, options)
       end
+      pp response
       response.body
     rescue StandardError => e
       raise e
@@ -42,18 +42,18 @@ module Tweetkit
       end
     end
 
-    def build_fields(options = {})
+    def build_fields(options)
       fields = {}
       _fields = options.delete(:fields)
-      if _fields
-        options.each do |key, value|
+      if _fields.size > 0
+        _fields.each do |key, value|
           if value.is_a?(Array)
             _value = value.join(',')
           else
             _value = value.delete(' ')
           end
           _key = key.to_s.gsub('_', '.')
-          fields.merge!({ _key => _value })
+          fields.merge!({ "#{_key}.fields" => _value })
         end
       end
       options.each do |key, value|
@@ -64,13 +64,28 @@ module Tweetkit
             _value = value.delete(' ')
           end
           _key = key.to_s.gsub('_', '.')
+          options.delete(key)
           fields.merge!({ _key => _value })
         end
       end
       fields
     end
 
-    def build_expansions(options = {})
+    def build_expansions(options)
+      expansions = {}
+      _expansions = options.delete(:expansions)
+      if _expansions.size > 0
+        _expansions.each do |key, value|
+          if value.is_a?(Array)
+            _value = value.join(',')
+          else
+            _value = value.delete(' ')
+          end
+          _key = key.to_s.gsub('_', '.')
+          expansions.merge!({ "#{_key}.fields" => _value })
+        end
+      end
+      expansions
     end
 
     def parse_query_and_convenience_headers(options)
@@ -81,9 +96,11 @@ module Tweetkit
           headers[h] = header
         end
       end
-      query = options.delete(:query)
-      opts = {:query => options}
-      opts[:query].merge!(query) if query && query.is_a?(Hash)
+      fields = build_fields(options)
+      opts = options.merge!(fields)
+      # query = options.delete(:query)
+      # opts = {:query => options}
+      # opts[:query].merge!(query) if query && query.is_a?(Hash)
       opts[:headers] = headers unless headers.empty?
 
       opts
