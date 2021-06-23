@@ -1,3 +1,5 @@
+require 'tweetkit/search'
+
 module Tweetkit
   class Client
     module Tweets
@@ -8,6 +10,11 @@ module Tweetkit
       def tweets(ids, **options)
         ids = ids.join(',') if ids.is_a? Array
         get 'tweets', options.merge!({ ids: ids })
+      end
+
+      def search(type = :tweet, **options, &block)
+        search = Search.new
+        yield search, self if block_given?
       end
     end
   end

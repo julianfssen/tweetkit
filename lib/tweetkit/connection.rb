@@ -30,7 +30,6 @@ module Tweetkit
       else
         response = Faraday.post(url, data, options)
       end
-      pp response
       response.body
     rescue StandardError => e
       raise e
