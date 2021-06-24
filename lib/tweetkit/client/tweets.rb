@@ -12,7 +12,7 @@ module Tweetkit
         get 'tweets', options.merge!({ ids: ids })
       end
 
-      def search(type = :tweet, **options, &block)
+      def search(query = '', type: :tweet, **options, &block)
         search = Search.new
         yield search, self if block_given?
       end
