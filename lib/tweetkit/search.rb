@@ -2,7 +2,7 @@
 
 module Tweetkit
   class Search
-    attr_accessor :query, :has, :or, :and, :not
+    attr_accessor :query, :has, :or, :and, :not, :is
 
     def initialize
     end
