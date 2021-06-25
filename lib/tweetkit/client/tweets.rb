@@ -13,7 +13,7 @@ module Tweetkit
       end
 
       def search(query = '', type: :tweet, **options, &block)
-        search = Search.new
+        search = Search.new(query)
         yield search, self if block_given?
       end
     end

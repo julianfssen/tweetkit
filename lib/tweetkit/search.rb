@@ -4,8 +4,8 @@ module Tweetkit
   class Search
     attr_writer :query
 
-    def initialize
-      @query = ''
+    def initialize(query)
+      @query = query
     end
 
     def connectors
@@ -30,6 +30,15 @@ module Tweetkit
     def or(term)
       add_connector(:or, term)
       self
+    end
+
+    def group
+    end
+
+    def has_one_of
+    end
+
+    def or_one_of
     end
 
     def add_connector(connector, term)
