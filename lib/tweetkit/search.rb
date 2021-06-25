@@ -41,6 +41,9 @@ module Tweetkit
     def or_one_of
     end
 
+    def contains
+    end
+
     def add_connector(connector, term)
       connectors[:connectors] = connectors[:connectors].push({ connector => term })
     end
