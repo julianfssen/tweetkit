@@ -22,30 +22,89 @@ module Tweetkit
       self
     end
 
-    def and(term)
-      add_connector(:and, term)
+    def has_one_of(terms)
+    end
+
+    def contains(terms)
+    end
+
+    def contains_one_of(terms)
+    end
+
+    def without
+    end
+
+    def without_one_of
+    end
+
+    def and
       self
     end
 
-    def or(term)
-      add_connector(:or, term)
+    def or
       self
-    end
-
-    def group
-    end
-
-    def has_one_of
     end
 
     def or_one_of
     end
 
-    def contains
+    def is
+    end
+
+    def is_one_of
+    end
+
+    def is_not
+    end
+
+    def from_country
+    end
+
+    def group
     end
 
     def add_connector(connector, term)
       connectors[:connectors] = connectors[:connectors].push({ connector => term })
+    end
+
+    def build_connector(connector, terms)
+      query = ''
+      if connector
+        terms.each do |term|
+          term = term.strip
+          query << "#{connector}: #{term} "
+        end
+      else
+        terms.each do |term|
+          term = term.strip
+          query << "#{term} "
+        end
+      end
+      query.rstrip
+    end
+
+    def build_one_of_connector(connector, terms)
+      query = []
+      if connector.match?('contains')
+        terms.each do |term|
+          term = term.strip
+          query << term
+        end
+      else
+        terms.each do |term|
+          term = term.strip
+          query << "#{connector}: #{term}"
+        end
+      end
+      query.join(' OR ')
+    end
+
+    def method_missing(connector, *terms)
+      if connector.match?('one_of')
+        build_one_of_connector(connector, terms)
+      else
+        build_connector(connector, terms)
+      end
     end
   end
 end
