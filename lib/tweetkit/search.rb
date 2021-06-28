@@ -17,93 +17,68 @@ module Tweetkit
       self
     end
 
-    def has(term)
-      add_connector(:has, term)
-      self
-    end
-
-    def has_one_of(terms)
-    end
-
-    def contains(terms)
-    end
-
-    def contains_one_of(terms)
-    end
-
-    def without
-    end
-
-    def without_one_of
-    end
-
-    def and
-      self
-    end
-
-    def or
-      self
-    end
-
-    def or_one_of
-    end
-
-    def is
-    end
-
-    def is_one_of
-    end
-
-    def is_not
-    end
-
-    def from_country
-    end
-
-    def group
+    def setup(&block)
+      instance_eval(&block)
     end
 
     def add_connector(connector, term)
       connectors[:connectors] = connectors[:connectors].push({ connector => term })
+      self
     end
 
-    def build_connector(connector, terms)
+    def build_connector(connector, terms, &block)
       query = ''
+      connector =
+        connector
+        .to_s
+        .delete_prefix('and_')
+        .delete_prefix('or_')
+        .delete_suffix('_one_of')
+        .to_sym
       if connector
         terms.each do |term|
-          term = term.strip
-          query << "#{connector}: #{term} "
+          term = term.to_s.strip
+          query += "#{connector}: #{term} "
         end
       else
         terms.each do |term|
-          term = term.strip
-          query << "#{term} "
+          term = term.to_s.strip
+          query += "#{term} "
         end
       end
-      query.rstrip
+      add_connector(connector, query.rstrip)
+      block_given? ? yield : self
     end
 
-    def build_one_of_connector(connector, terms)
+    def build_one_of_connector(connector, terms, &block)
       query = []
+      connector =
+        connector
+        .to_s
+        .delete_prefix('and_')
+        .delete_prefix('or_')
+        .delete_suffix('_one_of')
+        .to_sym
       if connector.match?('contains')
         terms.each do |term|
-          term = term.strip
+          term = term.to_s.strip
           query << term
         end
       else
         terms.each do |term|
-          term = term.strip
+          term = term.to_s.strip
           query << "#{connector}: #{term}"
         end
       end
-      query.join(' OR ')
+      add_connector(connector, query.join(' OR '))
+      block_given? ? yield : self
     end
 
-    def method_missing(connector, *terms)
+    def method_missing(connector, *terms, &block)
       if connector.match?('one_of')
-        build_one_of_connector(connector, terms)
+        build_one_of_connector(connector, terms, &block)
       else
-        build_connector(connector, terms)
+        build_connector(connector, terms, &block)
       end
     end
   end
