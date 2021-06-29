@@ -8,8 +8,12 @@ module Tweetkit
       @query = query
     end
 
+    def opts
+      @opts ||= {}
+    end
+
     def connectors
-      @connectors ||= { connectors: [] }
+      @connectors ||= opts[:connectors] = []
     end
 
     def query(query)
@@ -21,9 +25,16 @@ module Tweetkit
       instance_eval(&block)
     end
 
-    def add_connector(connector, term)
-      connectors[:connectors] = connectors[:connectors].push({ connector => term })
-      self
+    def combined_query
+      @combined_query = "#{@query} #{combine_connectors}"
+    end
+
+    def combine_connectors
+      connectors.join(' ')
+    end
+
+    def add_connector(term)
+      connectors.push("(#{term})")
     end
 
     def build_connector(connector, terms, &block)
@@ -35,18 +46,22 @@ module Tweetkit
         .delete_prefix('or_')
         .delete_suffix('_one_of')
         .to_sym
-      if connector
+      if connector.match?('contains')
         terms.each do |term|
           term = term.to_s.strip
-          query += "#{connector}: #{term} "
+          if term.split.length > 1
+            query += "\"#{term}\" "
+          else
+            query += "#{term} "
+          end
         end
       else
         terms.each do |term|
           term = term.to_s.strip
-          query += "#{term} "
+          query += "#{connector}: #{term} "
         end
       end
-      add_connector(connector, query.rstrip)
+      add_connector(query.rstrip)
       block_given? ? yield : self
     end
 
@@ -70,7 +85,7 @@ module Tweetkit
           query << "#{connector}: #{term}"
         end
       end
-      add_connector(connector, query.join(' OR '))
+      add_connector(query.join(' OR '))
       block_given? ? yield : self
     end
 
@@ -80,6 +95,10 @@ module Tweetkit
       else
         build_connector(connector, terms, &block)
       end
+    end
+
+    def respond_to_missing?(method)
+      method.match?('one_of') || super
     end
   end
 end

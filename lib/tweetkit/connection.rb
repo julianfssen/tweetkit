@@ -14,21 +14,20 @@ module Tweetkit
 
     def request(method, path, data, options = {})
       if data.is_a?(Hash)
-        options[:query]   = data.delete(:query) || {}
         options[:headers] = data.delete(:headers) || {}
         if accept = data.delete(:accept)
           options[:headers][:accept] = accept
         end
       end
 
-      options = options[:headers].merge(oauth_headers)
+      headers = options[:headers].merge(oauth_headers)
 
       url = URI.parse(Tweetkit::Default.endpoint + path)
 
       if method == :get
-        response = Faraday.get(url, data, options)
+        response = Faraday.get(url, data, headers)
       else
-        response = Faraday.post(url, data, options)
+        response = Faraday.post(url, data, headers)
       end
       response.body
     rescue StandardError => e
@@ -44,7 +43,7 @@ module Tweetkit
     def build_fields(options)
       fields = {}
       _fields = options.delete(:fields)
-      if _fields.size > 0
+      if _fields && _fields.size > 0
         _fields.each do |key, value|
           if value.is_a?(Array)
             _value = value.join(',')
@@ -73,7 +72,7 @@ module Tweetkit
     def build_expansions(options)
       expansions = {}
       _expansions = options.delete(:expansions)
-      if _expansions.size > 0
+      if _expansions && _expansions.size > 0
         _expansions.each do |key, value|
           if value.is_a?(Array)
             _value = value.join(',')
