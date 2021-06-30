@@ -2,10 +2,10 @@
 
 module Tweetkit
   class Search
-    attr_writer :query
+    attr_accessor :search_term
 
-    def initialize(query)
-      @query = query
+    def initialize(term)
+      @search_term = term + ' '
     end
 
     def opts
@@ -16,9 +16,8 @@ module Tweetkit
       @connectors ||= opts[:connectors] = []
     end
 
-    def query(query)
-      @query = query
-      self
+    def update_search_term(term)
+      @search_term += term
     end
 
     def setup(&block)
@@ -26,15 +25,16 @@ module Tweetkit
     end
 
     def combined_query
-      @combined_query = "#{@query} #{combine_connectors}"
+      @search_term = "(#{@search_term})" if @search_term.split.length > 1
+      @combined_query = "#{@search_term} #{combine_connectors}"
     end
 
     def combine_connectors
       connectors.join(' ')
     end
 
-    def add_connector(term)
-      connectors.push("(#{term})")
+    def add_connector(term, grouped: true)
+      grouped ? connectors.push("(#{term})") : connectors.push(term)
     end
 
     def build_connector(connector, terms, &block)
@@ -55,13 +55,14 @@ module Tweetkit
             query += "#{term} "
           end
         end
+        update_search_term(query)
       else
         terms.each do |term|
           term = term.to_s.strip
           query += "#{connector}: #{term} "
         end
+        add_connector(query.rstrip, grouped: false)
       end
-      add_connector(query.rstrip)
       block_given? ? yield : self
     end
 
