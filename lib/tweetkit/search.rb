@@ -24,9 +24,11 @@ module Tweetkit
       instance_eval(&block)
     end
 
+    def or_search(term)
+    end
+
     def combined_query
-      @search_term = "(#{@search_term})" if @search_term.split.length > 1
-      @combined_query = "#{@search_term} #{combine_connectors}"
+      @combined_query = "#{@search_term.strip} #{combine_connectors}"
     end
 
     def combine_connectors
@@ -56,10 +58,27 @@ module Tweetkit
           end
         end
         update_search_term(query)
+      elsif connector.match?('without')
+        terms.each do |term|
+          term = term.to_s.strip
+          if term.split.length > 1
+            query += "-\"#{term}\" "
+          else
+            query += "-#{term} "
+          end
+        end
+        add_connector(query.rstrip, grouped: false)
+      elsif connector.match?('is_not')
+        connector = connector.to_s.delete_suffix('_not').to_sym
+        terms.each do |term|
+          term = term.to_s.strip
+          query += "-#{connector}:#{term} "
+        end
+        add_connector(query.rstrip)
       else
         terms.each do |term|
           term = term.to_s.strip
-          query += "#{connector}: #{term} "
+          query += "#{connector}:#{term} "
         end
         add_connector(query.rstrip, grouped: false)
       end
