@@ -1,6 +1,7 @@
 require 'faraday'
 require 'tweetkit/auth'
 require 'tweetkit/default'
+require 'tweetkit/response'
 
 module Tweetkit
   module Connection
@@ -29,7 +30,7 @@ module Tweetkit
       else
         response = Faraday.post(url, data, headers)
       end
-      response.body
+      Tweetkit::Response.new(response)
     rescue StandardError => e
       raise e
     end

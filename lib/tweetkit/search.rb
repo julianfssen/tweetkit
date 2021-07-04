@@ -24,9 +24,6 @@ module Tweetkit
       instance_eval(&block)
     end
 
-    def or_search(term)
-    end
-
     def combined_query
       @combined_query = "#{@search_term.strip} #{combine_connectors}"
     end
