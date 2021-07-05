@@ -74,15 +74,8 @@ module Tweetkit
       expansions = {}
       _expansions = options.delete(:expansions)
       if _expansions && _expansions.size > 0
-        _expansions.each do |key, value|
-          if value.is_a?(Array)
-            _value = value.join(',')
-          else
-            _value = value.delete(' ')
-          end
-          _key = key.to_s.gsub('_', '.')
-          expansions.merge!({ "#{_key}.fields" => _value })
-        end
+        _expansions = _expansions.join(',')
+        expansions.merge!({ expansions: _expansions })
       end
       expansions
     end
@@ -97,9 +90,8 @@ module Tweetkit
       end
       fields = build_fields(options)
       opts = options.merge!(fields)
-      # query = options.delete(:query)
-      # opts = {:query => options}
-      # opts[:query].merge!(query) if query && query.is_a?(Hash)
+      expansions = build_expansions(options)
+      opts.merge!(expansions)
       opts[:headers] = headers unless headers.empty?
 
       opts

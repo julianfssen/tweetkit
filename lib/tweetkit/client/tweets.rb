@@ -15,7 +15,6 @@ module Tweetkit
       def search(query = '', type: :tweet, **options, &block)
         search = Search.new(query)
         search.setup(&block) if block_given?
-        pp search.combined_query
         get 'tweets/search/recent', options.merge!({ query: search.combined_query })
       end
     end
