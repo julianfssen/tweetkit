@@ -12,10 +12,25 @@ module Tweetkit
     end
 
     class Tweets
+      include Enumerable
+
       attr_accessor :tweets
 
       def initialize(tweets)
-        @tweets = tweets.collect { |tweet| Tweetkit::Response::Tweet.new(tweet) }
+        tweets = tweets.collect { |tweet| Tweetkit::Response::Tweet.new(tweet) }
+        @tweets = Array.new(tweets)
+      end
+
+      def each(*args, &block)
+        tweets.each(*args, &block)
+      end
+
+      def last
+        tweets.last
+      end
+
+      def to_s
+        @tweets.join(' ')
       end
     end
 
@@ -27,7 +42,8 @@ module Tweetkit
       end
 
       def method_missing(attribute)
-        tweet[attribute.to_s]
+        data = tweet[attribute.to_s]
+        super if data.empty?
       end
 
       def respond_to_missing?
