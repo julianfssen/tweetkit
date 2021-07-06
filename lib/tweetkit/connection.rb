@@ -1,3 +1,4 @@
+require 'pry'
 require 'faraday'
 require 'tweetkit/auth'
 require 'tweetkit/default'
@@ -7,23 +8,14 @@ module Tweetkit
   module Connection
     include Tweetkit::Auth
 
-    CONVENIENCE_HEADERS = Set.new([:accept, :content_type])
     BASE_URL = 'https://api.twitter.com/2/'
 
-    def get(url, **options)
-      request :get, url, parse_query_and_convenience_headers(options)
+    def get(endpoint, **options)
+      request :get, endpoint, parse_query_and_convenience_headers(options)
     end
 
     def request(method, endpoint, data, **options)
-      if data.is_a?(Hash)
-        options[:headers] = data.delete(:headers) || {}
-        if accept = data.delete(:accept)
-          options[:headers][:accept] = accept
-        end
-      end
-
-      headers = options[:headers].merge(oauth_headers)
-
+      headers = data.delete(:headers)
       url = URI.parse("#{BASE_URL}#{endpoint}")
 
       if method == :get
@@ -36,8 +28,9 @@ module Tweetkit
       raise e
     end
 
-    def oauth_headers
-      if bearer_auth?
+    def auth_headers(type = 'bearer')
+      case type
+      when 'bearer'
         { 'Authorization': "Bearer #{@bearer_token}" }
       end
     end
@@ -83,19 +76,12 @@ module Tweetkit
 
     def parse_query_and_convenience_headers(options)
       options = options.dup
-      headers = options.delete(:headers) { Hash.new }
-      CONVENIENCE_HEADERS.each do |h|
-        if header = options.delete(h)
-          headers[h] = header
-        end
-      end
+      options[:headers] = auth_headers
       fields = build_fields(options)
-      opts = options.merge!(fields)
+      options.merge!(fields)
       expansions = build_expansions(options)
-      opts.merge!(expansions)
-      opts[:headers] = headers unless headers.empty?
-
-      opts
+      options.merge!(expansions)
+      options
     end
   end
 end
