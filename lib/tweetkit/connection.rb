@@ -8,12 +8,13 @@ module Tweetkit
     include Tweetkit::Auth
 
     CONVENIENCE_HEADERS = Set.new([:accept, :content_type])
+    BASE_URL = 'https://api.twitter.com/2/'
 
     def get(url, **options)
       request :get, url, parse_query_and_convenience_headers(options)
     end
 
-    def request(method, path, data, options = {})
+    def request(method, endpoint, data, **options)
       if data.is_a?(Hash)
         options[:headers] = data.delete(:headers) || {}
         if accept = data.delete(:accept)
@@ -23,7 +24,7 @@ module Tweetkit
 
       headers = options[:headers].merge(oauth_headers)
 
-      url = URI.parse(Tweetkit::Default.endpoint + path)
+      url = URI.parse("#{BASE_URL}#{endpoint}")
 
       if method == :get
         response = Faraday.get(url, data, headers)
