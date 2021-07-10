@@ -7,7 +7,7 @@ module Tweetkit
     include Tweetkit::Connection
     include Tweetkit::Client::Tweets
 
-    attr_accessor :access_token, :access_token_secret, :bearer_token, :consumer_key, :consumer_token, :email, :password
+    attr_accessor :access_token, :access_token_secret, :bearer_token, :consumer_key, :consumer_secret, :email, :password
 
     def initialize(options = {})
       options.each do |key, value|

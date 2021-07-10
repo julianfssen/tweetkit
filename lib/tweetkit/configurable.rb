@@ -6,7 +6,7 @@ module Tweetkit
         access_token_secret
         bearer_token
         consumer_key
-        consumer_token
+        consumer_secret
         password
         email
       ]

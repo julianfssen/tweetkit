@@ -8,7 +8,11 @@ module Tweetkit
       end
 
       def tweets(ids, **options)
-        ids = ids.join(',') if ids.is_a? Array
+        if ids.is_a? Array
+          ids = ids.join(',')
+        else
+          ids = ids.delete(' ')
+        end
         get 'tweets', options.merge!({ ids: ids })
       end
 

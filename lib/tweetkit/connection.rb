@@ -1,5 +1,5 @@
-require 'pry'
 require 'faraday'
+require 'faraday_middleware'
 require 'tweetkit/auth'
 require 'tweetkit/default'
 require 'tweetkit/response'
@@ -15,23 +15,34 @@ module Tweetkit
     end
 
     def request(method, endpoint, data, **options)
-      headers = data.delete(:headers)
+      auth_type = options.delete(:auth_type)
       url = URI.parse("#{BASE_URL}#{endpoint}")
 
       if method == :get
-        response = Faraday.get(url, data, headers)
+        conn = Faraday.new(params: data) do |c|
+          if auth_type == 'oauth1'
+            c.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
+          else
+            c.authorization :Bearer, auth_token('bearer')
+          end
+        end
+        response = conn.get(url)
       else
-        response = Faraday.post(url, data, headers)
+        conn = Faraday.new do |f|
+        end
+        response = conn.post(url)
       end
+      conn.close
+      binding.pry
       Tweetkit::Response.new(response)
     rescue StandardError => e
       raise e
     end
 
-    def auth_headers(type = 'bearer')
+    def auth_token(type = 'bearer')
       case type
       when 'bearer'
-        { 'Authorization': "Bearer #{@bearer_token}" }
+        @bearer_token
       end
     end
 
@@ -76,7 +87,6 @@ module Tweetkit
 
     def parse_query_and_convenience_headers(options)
       options = options.dup
-      options[:headers] = auth_headers
       fields = build_fields(options)
       options.merge!(fields)
       expansions = build_expansions(options)

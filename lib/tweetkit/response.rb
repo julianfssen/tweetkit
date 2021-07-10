@@ -1,10 +1,12 @@
 require 'json'
+require 'pry'
 
 module Tweetkit
   class Response
-    attr_accessor :tweets, :meta, :expansions
+    attr_accessor :expansions, :meta, :original_response, :tweets,
 
     def initialize(response)
+      binding.pry
       @original_response = response.body
       parsed_response = JSON.parse(@original_response)
       @tweets = Tweetkit::Response::Tweets.new(parsed_response)
