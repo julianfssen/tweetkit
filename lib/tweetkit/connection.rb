@@ -23,7 +23,7 @@ module Tweetkit
           if auth_type == 'oauth1'
             c.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
           else
-            c.authorization :Bearer, auth_token('bearer')
+            c.authorization :Bearer, @bearer_token
           end
         end
         response = conn.get(url)
@@ -33,7 +33,6 @@ module Tweetkit
         response = conn.post(url)
       end
       conn.close
-      binding.pry
       Tweetkit::Response.new(response)
     rescue StandardError => e
       raise e
