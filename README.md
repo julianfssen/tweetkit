@@ -1,8 +1,8 @@
 # Tweetkit
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/tweetkit`. To experiment with that code, run `bin/console` for an interactive prompt.
+`Tweetkit` is a Ruby wrapper for [Twitter's V2 API](https://developer.twitter.com/en/docs/twitter-api/early-access).
 
-TODO: Delete this and the text above, and describe your gem
+`Tweetkit` is inspired by the original [Twitter gem](https://github.com/sferik/twitter) and the [Octokit ecosystem](https://github.com/octokit/octokit.rb).
 
 ## Installation
 
@@ -22,7 +22,40 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+1. Require the gem.
+
+```ruby
+  require 'tweetkit'
+```
+
+2. Initialize a `Tweetkit::Client` instance by passing in your `Bearer Token` to work with Twitter's `OAuth 2.0` authorization requirement. You should also pass in your consumer key and token to perform requests that require `OAuth 1.0` authorization. 
+
+[Read more on how to apply and access your Twitter tokens here.](https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api)
+
+```ruby
+  # Initializing via options
+  client = Tweetkit::Client.new(bearer_token: 'YOUR_BEARER_TOKEN_HERE')
+
+  # Initializing via options with OAuth 1.0 credentials
+  client = Tweetkit::Client.new(bearer_token: 'YOUR_BEARER_TOKEN_HERE', consumer_key: 'YOUR_API_KEY_HERE', consumer_token: 'YOUR_API_TOKEN_HERE')
+
+  # You can also initialize the client with a block
+  client = Tweetkit::Client.new do |config|
+    config.bearer_token = 'YOUR_BEARER_TOKEN_HERE'
+    config.consumer_key = 'YOUR_API_KEY_HERE'
+    config.consumer_token = 'YOUR_API_TOKEN_HERE'
+  end
+```
+
+3. Interact with the Twitter API as needed. Below is an example of fetching a tweet with id `1234567890`.
+
+```ruby
+  response = client.tweet(1234567890)
+```
+
+## Documentation
+
+Coming soon.
 
 ## Development
 
@@ -32,5 +65,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/tweetkit.
+Bug reports and pull requests are welcome on GitHub at https://github.com/julianfssen/tweetkit.
 

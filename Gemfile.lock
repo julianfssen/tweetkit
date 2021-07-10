@@ -2,6 +2,9 @@ PATH
   remote: .
   specs:
     tweetkit (0.1.0)
+      faraday
+      faraday_middleware
+      simple_oauth
 
 GEM
   remote: https://rubygems.org/
