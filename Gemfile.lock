@@ -2,9 +2,9 @@ PATH
   remote: .
   specs:
     tweetkit (0.1.0)
-      faraday
-      faraday_middleware
-      simple_oauth
+      faraday (>= 0.9)
+      faraday_middleware (~> 1.0.0)
+      simple_oauth (~> 0.3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -44,7 +44,7 @@ DEPENDENCIES
   minitest (~> 5.0)
   pry (~> 0.13.1)
   rake (~> 12.0)
-  simple_oauth
+  simple_oauth (~> 0.3.0)
   tweetkit!
 
 BUNDLED WITH
