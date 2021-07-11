@@ -1,4 +1,5 @@
 require 'json'
+require 'pry'
 
 module Tweetkit
   class Response
@@ -19,15 +20,26 @@ module Tweetkit
 
       def initialize(expansions)
         @expansions = expansions
+        @expansions.each do |key, value|
+          Tweetkit::Response::Expansions::Expansion.new(key, value)
+        end
       end
 
       def method_missing(attribute, **args)
-        data = expansions[attribute.to_s]
-        data.empty? ? super : data
+        response = expansions.public_send(attribute, **args) if response.nil?
+        response
       end
 
       def respond_to_missing?(method)
         expansions.respond_to? method
+      end
+
+      class Expansion
+        def initialize(expansion, data)
+        end
+
+        def where
+        end
       end
     end
 
