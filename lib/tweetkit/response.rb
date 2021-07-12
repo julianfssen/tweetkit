@@ -1,5 +1,4 @@
 require 'json'
-require 'pry'
 
 module Tweetkit
   class Response
@@ -20,25 +19,62 @@ module Tweetkit
 
       def initialize(expansions)
         @expansions = expansions
-        @expansions.each do |key, value|
-          Tweetkit::Response::Expansions::Expansion.new(key, value)
+        @expansions.each_key do |expansion_type|
+          normalized_expansion = build_and_normalize_expansion(@expansions[expansion_type], expansion_type)
+          instance_variable_set(:"@#{expansion_type}", normalized_expansion)
+          self.class.define_method(expansion_type) { instance_variable_get("@#{expansion_type}") }
         end
       end
 
-      def method_missing(attribute, **args)
-        response = expansions.public_send(attribute, **args) if response.nil?
-        response
+      def build_and_normalize_expansion(entities, expansion_type)
+        normalized_expansion = Tweetkit::Response::Expansions::Expansion.new(entities, expansion_type)
+        normalized_expansion.normalized_expansion
       end
 
-      def respond_to_missing?(method)
-        expansions.respond_to? method
-      end
+      # def method_missing(attribute, **args)
+      #   response = expansions[attribute.to_s]
+      #   response = super if response.nil?
+      #   response
+      # end
+
+      # def respond_to_missing?(method)
+      #   expansions.respond_to? method
+      # end
 
       class Expansion
-        def initialize(expansion, data)
+        include Enumerable
+
+        attr_accessor :normalized_expansion
+
+        EXPANSION_NORMALIZATION_KEY = {
+          'users': 'id'
+        }.freeze
+
+        def initialize(entities, expansion_type)
+          @normalized_expansion = {}
+          normalization_key = EXPANSION_NORMALIZATION_KEY[expansion_type.to_sym]
+          entities.each do |entity|
+            key = entity[normalization_key]
+            @normalized_expansion[key.to_i] = entity
+          end
         end
 
-        def where
+        def each(*args, &block)
+          data.each(*args, &block)
+        end
+
+        # def method_missing(attribute, **args)
+        #   response = data[attribute.to_s]
+        #   response = super if response.nil?
+        #   response
+        # end
+
+        # def respond_to_missing?(method)
+        #   data.respond_to? method
+        # end
+
+        def find(key)
+          @entities[key]
         end
       end
     end
