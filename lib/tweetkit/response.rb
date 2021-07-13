@@ -1,4 +1,5 @@
 require 'json'
+require 'pry'
 
 module Tweetkit
   class Response
@@ -27,8 +28,7 @@ module Tweetkit
       end
 
       def build_and_normalize_expansion(entities, expansion_type)
-        normalized_expansion = Tweetkit::Response::Expansions::Expansion.new(entities, expansion_type)
-        normalized_expansion.normalized_expansion
+        Tweetkit::Response::Expansions::Expansion.new(entities, expansion_type)
       end
 
       # def method_missing(attribute, **args)
@@ -44,23 +44,34 @@ module Tweetkit
       class Expansion
         include Enumerable
 
-        attr_accessor :normalized_expansion
+        attr_accessor :normalized_expansion, :original_expansion
 
         EXPANSION_NORMALIZATION_KEY = {
           'users': 'id'
         }.freeze
 
+        EXPANSION_TYPE_TO_STRUCT_NAME = {
+          'users': 'User'
+        }.freeze
+
         def initialize(entities, expansion_type)
+          @original_expansion = entities
           @normalized_expansion = {}
           normalization_key = EXPANSION_NORMALIZATION_KEY[expansion_type.to_sym]
+          # struct_name = EXPANSION_TYPE_TO_STRUCT_NAME[expansion_type.to_sym]
+          # struct_members = entities.first.keys.collect(&:to_sym)
+          # self.class.const_set(struct_name, Struct.new(*struct_members))
+          # struct = self.class.const_get(struct_name)
           entities.each do |entity|
             key = entity[normalization_key]
+            # member_values = entity.values
+            # @normalized_expansion[key.to_i] = struct.new(*member_values)
             @normalized_expansion[key.to_i] = entity
           end
         end
 
         def each(*args, &block)
-          data.each(*args, &block)
+          @normalized_expansion.each(*args, &block)
         end
 
         # def method_missing(attribute, **args)
@@ -74,7 +85,7 @@ module Tweetkit
         # end
 
         def find(key)
-          @entities[key]
+          @normalized_expansion[key]
         end
       end
     end
