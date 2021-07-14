@@ -3,89 +3,79 @@ require 'pry'
 
 module Tweetkit
   class Response
-    attr_accessor :expansions, :meta, :original_response, :tweets
+    attr_accessor :resources, :meta, :original_response, :tweets
 
     def initialize(response)
       @original_response = response.body
       parsed_response = JSON.parse(@original_response)
       @tweets = Tweetkit::Response::Tweets.new(parsed_response)
       @meta = Tweetkit::Response::Meta.new(@tweets.meta)
-      @expansions = Tweetkit::Response::Expansions.new(@tweets.expansions)
+      @resources = Tweetkit::Response::Resources.new(@tweets.resources)
     end
 
-    class Expansions
+    class Resources
       include Enumerable
 
-      attr_accessor :expansions
+      VALID_RESOURCES = Set['users', 'tweets', 'media']
 
-      def initialize(expansions)
-        @expansions = expansions
-        @expansions.each_key do |expansion_type|
-          normalized_expansion = build_and_normalize_expansion(@expansions[expansion_type], expansion_type)
-          instance_variable_set(:"@#{expansion_type}", normalized_expansion)
-          self.class.define_method(expansion_type) { instance_variable_get("@#{expansion_type}") }
+      attr_accessor :resources
+
+      def initialize(resources)
+        @resources = resources
+        build_and_normalize_resources(resources) unless resources.nil?
+      end
+
+      def build_and_normalize_resources(resources)
+        resources.each_key do |resource_type|
+          normalized_resource = build_and_normalize_resource(@resources[resource_type], resource_type)
+          instance_variable_set(:"@#{resource_type}", normalized_resource)
+          self.class.define_method(resource_type) { instance_variable_get("@#{resource_type}") }
         end
       end
 
-      def build_and_normalize_expansion(entities, expansion_type)
-        Tweetkit::Response::Expansions::Expansion.new(entities, expansion_type)
+      def build_and_normalize_resource(resource, resource_type)
+        Tweetkit::Response::Resources::Resource.new(resource, resource_type)
       end
 
-      # def method_missing(attribute, **args)
-      #   response = expansions[attribute.to_s]
-      #   response = super if response.nil?
-      #   response
-      # end
+      def method_missing(method, **args)
+        return nil if VALID_RESOURCES.include?(method.to_s)
 
-      # def respond_to_missing?(method)
-      #   expansions.respond_to? method
-      # end
+        super
+      end
 
-      class Expansion
+      def respond_to_missing?(method, *args)
+        Set.include?(method.to_s) || super
+      end
+
+      class Resource
         include Enumerable
 
-        attr_accessor :normalized_expansion, :original_expansion
+        attr_accessor :normalized_resource, :original_resource
 
-        EXPANSION_NORMALIZATION_KEY = {
+        RESOURCE_NORMALIZATION_KEY = {
           'users': 'id'
         }.freeze
 
-        EXPANSION_TYPE_TO_STRUCT_NAME = {
-          'users': 'User'
-        }.freeze
-
-        def initialize(entities, expansion_type)
-          @original_expansion = entities
-          @normalized_expansion = {}
-          normalization_key = EXPANSION_NORMALIZATION_KEY[expansion_type.to_sym]
-          # struct_name = EXPANSION_TYPE_TO_STRUCT_NAME[expansion_type.to_sym]
-          # struct_members = entities.first.keys.collect(&:to_sym)
-          # self.class.const_set(struct_name, Struct.new(*struct_members))
-          # struct = self.class.const_get(struct_name)
-          entities.each do |entity|
-            key = entity[normalization_key]
-            # member_values = entity.values
-            # @normalized_expansion[key.to_i] = struct.new(*member_values)
-            @normalized_expansion[key.to_i] = entity
+        def initialize(resource, resource_type)
+          @original_resource = resource
+          @normalized_resource = {}
+          normalization_key = RESOURCE_NORMALIZATION_KEY[resource_type.to_sym]
+          resource.each do |data|
+            key = data[normalization_key]
+            @normalized_resource[key.to_i] = data
           end
         end
 
         def each(*args, &block)
-          @normalized_expansion.each(*args, &block)
+          @normalized_resource.each(*args, &block)
         end
 
-        # def method_missing(attribute, **args)
-        #   response = data[attribute.to_s]
-        #   response = super if response.nil?
-        #   response
-        # end
-
-        # def respond_to_missing?(method)
-        #   data.respond_to? method
-        # end
+        def each_data(*args, &block)
+          @normalized_resource.values.each(*args, &block)
+        end
 
         def find(key)
-          @normalized_expansion[key]
+          @normalized_resource[key.to_i]
         end
       end
     end
@@ -104,7 +94,7 @@ module Tweetkit
         data.empty? ? super : data
       end
 
-      def respond_to_missing?(method)
+      def respond_to_missing?(method, *args)
         meta.respond_to? method
       end
     end
@@ -112,12 +102,12 @@ module Tweetkit
     class Tweets
       include Enumerable
 
-      attr_accessor :tweets, :meta, :expansions
+      attr_accessor :tweets, :meta, :resources
 
       def initialize(response)
-        @tweets = response['data'].collect { |tweet| Tweetkit::Response::Tweet.new(tweet) }
+        @tweets = response['data'] ? response['data'].collect { |tweet| Tweetkit::Response::Tweet.new(tweet) } : []
         @meta = response['meta']
-        @expansions = response['includes']
+        @resources = response['includes']
       end
 
       def each(*args, &block)
@@ -132,15 +122,12 @@ module Tweetkit
         @tweets.join(' ')
       end
 
-      def method_missing(attribute, **args)
-        result = tweets.public_send(attribute, **args)
-        super unless result
-      rescue StandardError
-        super
+      def method_missing(method, **args)
+        tweets.public_send(method, **args)
       end
 
-      def respond_to_missing?(method)
-        tweets.respond_to? method
+      def respond_to_missing?(method, *args)
+        tweets.respond_to?(method)
       end
     end
 
@@ -156,8 +143,8 @@ module Tweetkit
         data.empty? ? super : data
       end
 
-      def respond_to_missing?(method)
-        tweet.respond_to? method
+      def respond_to_missing?(method, *args)
+        tweet.respond_to?(method) || super
       end
     end
   end
