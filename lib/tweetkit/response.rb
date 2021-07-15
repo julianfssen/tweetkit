@@ -44,7 +44,7 @@ module Tweetkit
       end
 
       def respond_to_missing?(method, *args)
-        Set.include?(method.to_s) || super
+        VALID_RESOURCES.include?(method.to_s) || super
       end
 
       class Resource
