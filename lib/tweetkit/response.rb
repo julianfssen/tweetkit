@@ -1,5 +1,4 @@
 require 'json'
-require 'pry'
 
 module Tweetkit
   class Response
