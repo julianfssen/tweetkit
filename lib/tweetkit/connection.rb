@@ -7,6 +7,7 @@ require 'tweetkit/response'
 module Tweetkit
   module Connection
     include Tweetkit::Auth
+    include Tweetkit::Response
 
     attr_accessor :saved_params, :saved_url
 
@@ -36,7 +37,7 @@ module Tweetkit
         response = conn.post(url)
       end
       conn.close
-      Tweetkit::Response.new(response)
+      Tweetkit::Response::Tweets.new(response)
     rescue StandardError => e
       raise e
     end
