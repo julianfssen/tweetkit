@@ -1,4 +1,6 @@
 require 'json'
+require 'pry'
+require 'tweetkit/connection'
 
 module Tweetkit
   class Response
@@ -9,7 +11,18 @@ module Tweetkit
       parsed_response = JSON.parse(@original_response)
       @tweets = Tweetkit::Response::Tweets.new(parsed_response)
       @meta = Tweetkit::Response::Meta.new(@tweets.meta)
+      @next_token = @meta.next_token
+      @prev_token = @meta.prev_token
       @resources = Tweetkit::Response::Resources.new(@tweets.resources)
+    end
+    
+    def next
+      binding.pry
+      @meta.next_token
+    end
+    
+    def prev
+      @meta.prev_token
     end
 
     class Resources
@@ -82,10 +95,12 @@ module Tweetkit
     class Meta
       include Enumerable
 
-      attr_accessor :meta
+      attr_accessor :meta, :next_token, :prev_token
 
       def initialize(meta)
         @meta = meta
+        @next_token = @meta['next_token']
+        @prev_token = @meta['prev_token']
       end
 
       def method_missing(attribute, **args)

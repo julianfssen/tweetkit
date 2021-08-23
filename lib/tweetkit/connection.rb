@@ -8,6 +8,8 @@ module Tweetkit
   module Connection
     include Tweetkit::Auth
 
+    attr_accessor :saved_params, :saved_url
+
     BASE_URL = 'https://api.twitter.com/2/'
 
     def get(endpoint, **options)
@@ -16,7 +18,8 @@ module Tweetkit
 
     def request(method, endpoint, data, **options)
       auth_type = options.delete(:auth_type)
-      url = URI.parse("#{BASE_URL}#{endpoint}")
+      @saved_url = URI.parse("#{BASE_URL}#{endpoint}")
+      @saved_params = data
 
       if method == :get
         conn = Faraday.new(params: data) do |c|
@@ -26,7 +29,7 @@ module Tweetkit
             c.authorization :Bearer, @bearer_token
           end
         end
-        response = conn.get(url)
+        response = conn.get(saved_url)
       else
         conn = Faraday.new do |f|
         end
