@@ -1,23 +1,50 @@
 require 'json'
 require 'pry'
-require 'tweetkit/connection'
 
 module Tweetkit
   module Response
-    include Tweetkit::Connection
-
     class Tweets
       include Enumerable
 
-      attr_accessor :meta, :original_response, :resources, :tweets, :twitter_request
+      attr_accessor :connection, :meta, :options, :original_response, :resources, :response, :tweets, :twitter_request
 
       def initialize(response, **options)
+        parse_response response
+        extract_and_save_tweets
+        extract_and_save_meta
+        extract_and_save_resources
+        extract_and_save_options(**options)
+        extract_and_save_request
+      end
+
+      def parse_response(response)
         @original_response = response.body
-        response = JSON.parse(@original_response)
-        @tweets = response['data'] ? response['data'].collect { |tweet| Tweetkit::Response::Tweets::Tweet.new(tweet) } : []
-        @meta = Tweetkit::Response::Tweets::Meta.new(response['meta'])
-        @resources = response['includes']
-        @twitter_request = options[:twitter_request]
+        @response = JSON.parse(@original_response)
+      end
+
+      def extract_and_save_tweets
+        if @response['data']
+          @tweets = @response['data'].collect { |tweet| Tweetkit::Response::Tweets::Tweet.new(tweet) }
+        else
+          @tweets = []
+        end
+      end
+
+      def extract_and_save_meta
+        @meta = Tweetkit::Response::Tweets::Meta.new(@response['meta'])
+      end
+
+      def extract_and_save_resources
+        @resources = @response['includes']
+      end
+
+      def extract_and_save_options(**options)
+        @options = options
+      end
+
+      def extract_and_save_request
+        @connection = @options[:connection]
+        @twitter_request = @options[:twitter_request]
       end
 
       def each(*args, &block)
@@ -28,11 +55,11 @@ module Tweetkit
         tweets.last
       end
 
-      def next
-        binding.pry
+      def next_page
+        connection.get(twitter_request[:previous_url], { next_token: meta.next_token })
       end
 
-      def prev
+      def prev_page
       end
 
       # def method_missing(method, **args)

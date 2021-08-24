@@ -1,11 +1,9 @@
-require 'tweetkit/configurable'
-require 'tweetkit/default'
-require 'tweetkit/response'
+require 'tweetkit/connection'
 require 'tweetkit/client/tweets'
 
 module Tweetkit
   class Client
-    include Tweetkit::Response
+    include Tweetkit::Connection
     include Tweetkit::Client::Tweets
 
     attr_accessor :access_token, :access_token_secret, :bearer_token, :consumer_key, :consumer_secret, :email, :password
