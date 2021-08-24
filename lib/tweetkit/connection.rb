@@ -1,15 +1,12 @@
 require 'faraday'
 require 'faraday_middleware'
 require 'tweetkit/auth'
-require 'tweetkit/default'
-require 'tweetkit/response'
 
 module Tweetkit
   module Connection
     include Tweetkit::Auth
-    include Tweetkit::Response
 
-    attr_accessor :saved_params, :saved_url
+    attr_accessor :previous_query, :previous_url
 
     BASE_URL = 'https://api.twitter.com/2/'
 
@@ -19,8 +16,9 @@ module Tweetkit
 
     def request(method, endpoint, data, **options)
       auth_type = options.delete(:auth_type)
-      @saved_url = URI.parse("#{BASE_URL}#{endpoint}")
-      @saved_params = data
+      url = URI.parse("#{BASE_URL}#{endpoint}")
+      @previous_url = url
+      @previous_query = data
 
       if method == :get
         conn = Faraday.new(params: data) do |c|
@@ -30,14 +28,14 @@ module Tweetkit
             c.authorization :Bearer, @bearer_token
           end
         end
-        response = conn.get(saved_url)
+        response = conn.get(url)
       else
         conn = Faraday.new do |f|
         end
         response = conn.post(url)
       end
       conn.close
-      Tweetkit::Response::Tweets.new(response)
+      Tweetkit::Response::Tweets.new response, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
     rescue StandardError => e
       raise e
     end

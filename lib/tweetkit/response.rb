@@ -1,19 +1,23 @@
 require 'json'
 require 'pry'
+require 'tweetkit/connection'
 
 module Tweetkit
   module Response
+    include Tweetkit::Connection
+
     class Tweets
       include Enumerable
 
-      attr_accessor :meta, :original_response, :resources, :tweets
+      attr_accessor :meta, :original_response, :resources, :tweets, :twitter_request
 
-      def initialize(response)
+      def initialize(response, **options)
         @original_response = response.body
         response = JSON.parse(@original_response)
         @tweets = response['data'] ? response['data'].collect { |tweet| Tweetkit::Response::Tweets::Tweet.new(tweet) } : []
         @meta = Tweetkit::Response::Tweets::Meta.new(response['meta'])
         @resources = response['includes']
+        @twitter_request = options[:twitter_request]
       end
 
       def each(*args, &block)
@@ -25,6 +29,7 @@ module Tweetkit
       end
 
       def next
+        binding.pry
       end
 
       def prev
