@@ -9,6 +9,10 @@ module Tweetkit
       attr_accessor :connection, :meta, :options, :original_response, :resources, :response, :tweets, :twitter_request
 
       def initialize(response, **options)
+        parse! response, **options
+      end
+
+      def parse!(response, **options)
         parse_response response
         extract_and_save_tweets
         extract_and_save_meta
@@ -56,10 +60,27 @@ module Tweetkit
       end
 
       def next_page
-        connection.get(twitter_request[:previous_url], { next_token: meta.next_token })
+        connection.params.merge!({ next_token: meta.next_token })
+        response = connection.get(twitter_request[:previous_url])
+        parse! response,
+               connection: connection,
+               twitter_request: {
+                 previous_url: twitter_request[:previous_url],
+                 previous_query: twitter_request[:previous_query]
+               }
+        self
       end
 
       def prev_page
+        connection.params.merge!({ previous: meta.previous_token })
+        response = connection.get(twitter_request[:previous_url])
+        parse! response,
+               connection: connection,
+               twitter_request: {
+                 previous_url: twitter_request[:previous_url],
+                 previous_query: twitter_request[:previous_query]
+               }
+        self
       end
 
       # def method_missing(method, **args)
@@ -173,8 +194,8 @@ module Tweetkit
           @data['next_token']
         end
 
-        def prev_token
-          @data['prev_token']
+        def previous_token
+          @data['previous_token']
         end
 
         # def method_missing(attribute, **args)

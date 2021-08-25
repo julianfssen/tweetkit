@@ -2,6 +2,7 @@ require 'faraday'
 require 'faraday_middleware'
 require 'tweetkit/auth'
 require 'tweetkit/response'
+require 'pry'
 
 module Tweetkit
   module Connection
@@ -22,21 +23,21 @@ module Tweetkit
       @previous_url = url
       @previous_query = data
 
-      if method == :get
-        connection = Faraday.new(params: data) do |conn|
-          if auth_type == 'oauth1'
-            conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
-          else
-            conn.authorization :Bearer, @bearer_token
-          end
-        end
-        response = connection.get(url)
-      else
-        connection = Faraday.new do |f|
-        end
-        response = connection.post(url)
-      end
-      Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
+      # if method == :get
+      #   connection = Faraday.new(params: data) do |conn|
+      #     if auth_type == 'oauth1'
+      #       conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
+      #     else
+      #       conn.authorization :Bearer, @bearer_token
+      #     end
+      #   end
+      #   response = connection.get(url)
+      # else
+      #   connection = Faraday.new do |f|
+      #   end
+      #   response = connection.post(url)
+      # end
+      # Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
     rescue StandardError => e
       raise e
     end
@@ -50,49 +51,54 @@ module Tweetkit
 
     def build_fields(options)
       fields = {}
-      _fields = options.delete(:fields)
-      if _fields && _fields.size > 0
-        _fields.each do |key, value|
-          if value.is_a?(Array)
-            _value = value.join(',')
+      fields_ = options.delete(:fields)
+
+      if fields_ && !fields_.empty?
+        fields_.each do |field, value|
+          if value.is_a? Array
+            value = value.join(',')
           else
-            _value = value.delete(' ')
+            value = value.delete(' ')
           end
-          _key = key.to_s.gsub('_', '.')
-          fields.merge!({ "#{_key}.fields" => _value })
+
+          field = field.to_s.gsub('_', '.')
+          fields.merge!({ "#{field}.fields" => value })
         end
       end
+
       options.each do |key, value|
-        if key.match?('_fields')
-          if value.is_a?(Array)
-            _value = value.join(',')
-          else
-            _value = value.delete(' ')
-          end
-          _key = key.to_s.gsub('_', '.')
-          options.delete(key)
-          fields.merge!({ _key => _value })
+        next unless key.match? '_fields'
+
+        options.delete(key)
+
+        if value.is_a? Array
+          value = value.join(',')
+        else
+          value = value.delete(' ')
         end
+
+        key = key.to_s.gsub('_', '.')
+        fields.merge!({ key => value })
       end
+
       fields
     end
 
     def build_expansions(options)
-      expansions = {}
-      _expansions = options.delete(:expansions)
-      if _expansions && _expansions.size > 0
-        _expansions = _expansions.join(',')
-        expansions.merge!({ expansions: _expansions })
-      end
-      expansions
+      expansions = options.delete(:expansions)
+      return unless expansions
+
+      expansions = expansions.join(',') if expansions.is_a? Array
+      binding.pry
+      { expansions: expansions }
     end
 
     def parse_query_and_convenience_headers(options)
       options = options.dup
       fields = build_fields(options)
-      options.merge!(fields)
+      options.merge!(fields) if fields
       expansions = build_expansions(options)
-      options.merge!(expansions)
+      options.merge!(expansions) if expansions
       options
     end
   end
