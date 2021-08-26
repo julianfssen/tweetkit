@@ -110,7 +110,6 @@ module Tweetkit
 
       class Expansions
         def initialize(expansions)
-          binding.pry
         end
       end
 
@@ -119,7 +118,6 @@ module Tweetkit
 
         def initialize(fields)
           @fields = fields 
-          binding.pry
           build_and_normalize_fields(fields) unless fields.nil?
         end
 
