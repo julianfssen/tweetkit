@@ -23,21 +23,21 @@ module Tweetkit
       @previous_url = url
       @previous_query = data
 
-      # if method == :get
-      #   connection = Faraday.new(params: data) do |conn|
-      #     if auth_type == 'oauth1'
-      #       conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
-      #     else
-      #       conn.authorization :Bearer, @bearer_token
-      #     end
-      #   end
-      #   response = connection.get(url)
-      # else
-      #   connection = Faraday.new do |f|
-      #   end
-      #   response = connection.post(url)
-      # end
-      # Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
+      if method == :get
+        connection = Faraday.new(params: data) do |conn|
+          if auth_type == 'oauth1'
+            conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
+          else
+            conn.authorization :Bearer, @bearer_token
+          end
+        end
+        response = connection.get(url)
+      else
+        connection = Faraday.new do |f|
+        end
+        response = connection.post(url)
+      end
+      Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
     rescue StandardError => e
       raise e
     end
@@ -89,7 +89,6 @@ module Tweetkit
       return unless expansions
 
       expansions = expansions.join(',') if expansions.is_a? Array
-      binding.pry
       { expansions: expansions }
     end
 

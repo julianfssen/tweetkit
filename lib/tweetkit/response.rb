@@ -6,7 +6,7 @@ module Tweetkit
     class Tweets
       include Enumerable
 
-      attr_accessor :connection, :meta, :options, :original_response, :resources, :response, :tweets, :twitter_request
+      attr_accessor :connection, :expansions, :fields, :meta, :options, :original_response, :response, :tweets, :twitter_request
 
       def initialize(response, **options)
         parse! response, **options
@@ -16,7 +16,7 @@ module Tweetkit
         parse_response response
         extract_and_save_tweets
         extract_and_save_meta
-        extract_and_save_resources
+        extract_and_save_expansions
         extract_and_save_options(**options)
         extract_and_save_request
       end
@@ -38,8 +38,8 @@ module Tweetkit
         @meta = Tweetkit::Response::Tweets::Meta.new(@response['meta'])
       end
 
-      def extract_and_save_resources
-        @resources = @response['includes']
+      def extract_and_save_expansions
+        @expansions = @response['includes']
       end
 
       def extract_and_save_options(**options)
@@ -83,14 +83,6 @@ module Tweetkit
         self
       end
 
-      # def method_missing(method, **args)
-      #   tweets.public_send(method, **args)
-      # end
-
-      # def respond_to_missing?(method, *args)
-      #   tweets.respond_to?(method)
-      # end
-
       class Tweet
         attr_accessor :data
 
@@ -116,69 +108,72 @@ module Tweetkit
         # end
       end
 
-      class Resources
-        include Enumerable
+      class Expansions
+        def initialize(expansions)
+          binding.pry
+        end
+      end
 
-        VALID_RESOURCES = Set['users', 'tweets', 'media']
+      class Fields
+        attr_accessor :fields, :media_fields, :place_fields, :poll_fields, :tweet_fields, :user_fields
 
-        attr_accessor :resources
-
-        def initialize(resources)
-          @resources = resources
-          build_and_normalize_resources(resources) unless resources.nil?
+        def initialize(fields)
+          @fields = fields 
+          binding.pry
+          build_and_normalize_fields(fields) unless fields.nil?
         end
 
-        def build_and_normalize_resources(resources)
-          resources.each_key do |resource_type|
-            normalized_resource = build_and_normalize_resource(@resources[resource_type], resource_type)
-            instance_variable_set(:"@#{resource_type}", normalized_resource)
-            self.class.define_method(resource_type) { instance_variable_get("@#{resource_type}") }
+        def build_and_normalize_fields(fields)
+          fields.each_key do |field_type|
+            normalized_field = build_and_normalize_field(@fields[field_type], field_type)
+            instance_variable_set(:"@#{field_type}", normalized_field)
+            self.class.define_method(field_type) { instance_variable_get("@#{field_type}") }
           end
         end
 
-        def build_and_normalize_resource(resource, resource_type)
-          Tweetkit::Response::Resources::Resource.new(resource, resource_type)
+        def build_and_normalize_field(field, field_type)
+          Tweetkit::Response::Resources::Resource.new(field, field_type)
         end
 
         def method_missing(method, **args)
-          return nil if VALID_RESOURCES.include?(method.to_s)
+          return nil if VALID_FIELDS.include?(method.to_s)
 
           super
         end
 
         def respond_to_missing?(method, *args)
-          VALID_RESOURCES.include?(method.to_s) || super
+          VALID_FIELDS.include?(method.to_s) || super
         end
 
         class Resource
           include Enumerable
 
-          attr_accessor :normalized_resource, :original_resource
+          attr_accessor :normalized_field, :original_field
 
-          RESOURCE_NORMALIZATION_KEY = {
+          FIELD_NORMALIZATION_KEY = {
             'users': 'id'
           }.freeze
 
-          def initialize(resource, resource_type)
-            @original_resource = resource
-            @normalized_resource = {}
-            normalization_key = RESOURCE_NORMALIZATION_KEY[resource_type.to_sym]
-            resource.each do |data|
+          def initialize(field, field_type)
+            @original_field = field
+            @normalized_field = {}
+            normalization_key = FIELD_NORMALIZATION_KEY[field_type.to_sym]
+            field.each do |data|
               key = data[normalization_key]
-              @normalized_resource[key.to_i] = data
+              @normalized_field[key.to_i] = data
             end
           end
 
           def each(*args, &block)
-            @normalized_resource.each(*args, &block)
+            @normalized_field.each(*args, &block)
           end
 
           def each_data(*args, &block)
-            @normalized_resource.values.each(*args, &block)
+            @normalized_field.values.each(*args, &block)
           end
 
           def find(key)
-            @normalized_resource[key.to_i]
+            @normalized_field[key.to_i]
           end
         end
       end
