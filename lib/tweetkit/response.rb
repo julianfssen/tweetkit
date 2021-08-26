@@ -1,5 +1,4 @@
 require 'json'
-require 'pry'
 require 'tweetkit/connection'
 
 module Tweetkit
@@ -17,7 +16,6 @@ module Tweetkit
     end
     
     def next
-      binding.pry
       @meta.next_token
     end
     
