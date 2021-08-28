@@ -6,7 +6,7 @@ module Tweetkit
     class Tweets
       include Enumerable
 
-      attr_accessor :connection, :expansions, :fields, :meta, :options, :original_response, :response, :tweets, :twitter_request
+      attr_accessor :annotations, :connection, :context_annotations, :entity_annotations, :expansions, :fields, :meta, :options, :original_response, :response, :tweets, :twitter_request
 
       def initialize(response, **options)
         parse! response, **options
@@ -28,14 +28,14 @@ module Tweetkit
 
       def extract_and_save_tweets
         if @response['data']
-          @tweets = @response['data'].collect { |tweet| Tweetkit::Response::Tweets::Tweet.new(tweet) }
+          @tweets = @response['data'].collect { |tweet| Tweet.new(tweet) }
         else
           @tweets = []
         end
       end
 
       def extract_and_save_meta
-        @meta = Tweetkit::Response::Tweets::Meta.new(@response['meta'])
+        @meta = Meta.new(@response['meta'])
       end
 
       def extract_and_save_expansions
@@ -84,10 +84,11 @@ module Tweetkit
       end
 
       class Tweet
-        attr_accessor :data
+        attr_accessor :annotations, :data
 
         def initialize(tweet)
           @data = tweet
+          @annotations = Annotations.new(data['context_annotations'], data['entities'])
         end
 
         def id
@@ -98,14 +99,58 @@ module Tweetkit
           data['text']
         end
 
-        # def method_missing(attribute)
-        #   data = tweet[attribute.to_s]
-        #   data.empty? ? super : data
-        # end
+        def context_annotations
+          @annotations.context_annotations
+        end
 
-        # def respond_to_missing?(method, *args)
-        #   tweet.respond_to?(method) || super
-        # end
+        def entity_annotations
+          @annotations.entity_annotations
+        end
+
+        class Annotations
+          attr_accessor :context_annotations, :entity_annotations
+
+          def initialize(context_annotations, entity_annotations)
+            @context_annotations = Context.new(context_annotations)
+            @entity_annotations = Entity.new(entity_annotations)
+          end
+
+          class Context
+            include Enumerable
+
+            attr_accessor :annotations
+
+            def initialize(annotations)
+              @annotations = annotations
+            end
+
+            def each(*args, &block)
+              annotations.each(*args, &block)
+            end
+          end
+
+          class Entity
+            include Enumerable
+
+            attr_accessor :annotations
+
+            def initialize(annotations)
+              @annotations = annotations
+            end
+
+            def each(*args, &block)
+              annotations.each(*args, &block)
+            end
+
+            class Annotation
+              class Domain
+              end
+
+              class Entity
+              end
+            end
+          end
+        end
       end
 
       class Expansions
@@ -130,7 +175,7 @@ module Tweetkit
         end
 
         def build_and_normalize_field(field, field_type)
-          Tweetkit::Response::Resources::Resource.new(field, field_type)
+          Field.new(field, field_type)
         end
 
         def method_missing(method, **args)
@@ -143,7 +188,7 @@ module Tweetkit
           VALID_FIELDS.include?(method.to_s) || super
         end
 
-        class Resource
+        class Field
           include Enumerable
 
           attr_accessor :normalized_field, :original_field
