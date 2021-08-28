@@ -111,8 +111,8 @@ module Tweetkit
           attr_accessor :context_annotations, :entity_annotations
 
           def initialize(context_annotations, entity_annotations)
-            @context_annotations = Context.new(context_annotations)
-            @entity_annotations = Entity.new(entity_annotations)
+            @context_annotations = Context.new(context_annotations) unless context_annotations.nil? || context_annotations.empty?
+            @entity_annotations = Entity.new(entity_annotations) unless entity_annotations.nil? || entity_annotations.empty?
           end
 
           class Context
@@ -121,21 +121,7 @@ module Tweetkit
             attr_accessor :annotations
 
             def initialize(annotations)
-              @annotations = annotations
-            end
-
-            def each(*args, &block)
-              annotations.each(*args, &block)
-            end
-          end
-
-          class Entity
-            include Enumerable
-
-            attr_accessor :annotations
-
-            def initialize(annotations)
-              @annotations = annotations
+              @annotations = annotations.collect { |annotation| Annotation.new(annotation) }
             end
 
             def each(*args, &block)
@@ -143,10 +129,49 @@ module Tweetkit
             end
 
             class Annotation
-              class Domain
-              end
+              attr_accessor :domain, :entity
 
-              class Entity
+              def initialize(annotation)
+                @domain = annotation['domain']
+                @entity = annotation['entity']
+              end
+            end
+          end
+
+          class Entity
+            include Enumerable
+
+            attr_accessor :annotations, :mentions
+
+            def initialize(entity_annotations)
+              @annotations = entity_annotations['annotations'].collect { |annotation| Annotation.new(annotation) } if entity_annotations['annotations']
+              @mentions = entity_annotations['mentions'].collect { |annotation| Mention.new(annotation) } if entity_annotations['mentions']
+            end
+
+            def each(*args, &block)
+              annotations.each(*args, &block)
+            end
+
+            class Annotation
+              attr_accessor :end, :probability, :start, :text, :type
+
+              def initialize(annotation)
+                @end = annotation['end']
+                @probability = annotation['probability']
+                @start = annotation['start']
+                @text = annotation['normalized_text']
+                @type = annotation['type']
+              end
+            end
+
+            class Mention
+              attr_accessor :end, :id, :start, :username
+
+              def initialize(mention)
+                @end = mention['end']
+                @id = mention['id']
+                @start = mention['start']
+                @username = mention['username']
               end
             end
           end
@@ -154,7 +179,14 @@ module Tweetkit
       end
 
       class Expansions
+        attr_accessor :media, :places, :polls, :tweets, :users
+
         def initialize(expansions)
+          @media = expansions['media']
+          @places = expansions['places']
+          @polls = expansions['polls']
+          @tweets = expansions['tweets']
+          @users = expansions['users']
         end
       end
 
