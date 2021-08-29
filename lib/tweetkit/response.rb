@@ -111,8 +111,8 @@ module Tweetkit
           attr_accessor :context_annotations, :entity_annotations
 
           def initialize(context_annotations, entity_annotations)
-            @context_annotations = Context.new(context_annotations) unless context_annotations.nil? || context_annotations.empty?
-            @entity_annotations = Entity.new(entity_annotations) unless entity_annotations.nil? || entity_annotations.empty?
+            @context_annotations = Context.new(context_annotations) if context_annotations
+            @entity_annotations = Entity.new(entity_annotations) if entity_annotations
           end
 
           class Context
@@ -182,18 +182,87 @@ module Tweetkit
         attr_accessor :media, :places, :polls, :tweets, :users
 
         def initialize(expansions)
-          @media = expansions['media']
+          @media = Media.new(expansions['media'])
           @places = expansions['places']
           @polls = expansions['polls']
-          @tweets = expansions['tweets']
+          @tweets = Tweets.new(expansions['tweets'])
           @users = Users.new(expansions['users'])
+        end
+
+        class Media
+          attr_accessor :media
+
+          def initialize(media)
+            @media = media.collect { |media_object| MediaObject.new(media_object) } if media
+          end
+
+          class MediaObject
+            attr_accessor :media_key, :type
+
+            def initialize(media_object)
+              @media_key = media_object['media_key']
+              @type = media_object['type']
+            end
+          end
+        end
+
+        class Places
+          attr_accessor :places
+
+          def initialize(places)
+            @places = places.collect { |place| Place.new(place) } if places
+          end
+
+          class Place
+            attr_accessor :full_name, :id
+
+            def initialize(place)
+              @full_name = place['full_name']
+              @id = place['id']
+            end
+          end
+        end
+
+        class Polls
+          attr_accessor :polls
+
+          def initialize(polls)
+            @polls = polls.collect { |poll| Poll.new(poll) } if polls
+          end
+
+          class Poll
+            attr_accessor :id, :options
+
+            def initialize(poll)
+              @id = poll['id']
+              @options = Options.new(poll['options'])
+            end
+
+            class Options
+              attr_accessor :options
+
+              def initialize(options)
+                @options = options.collect { |option| Option.new(option) }
+              end
+
+              class Option
+                attr_accessor :label, :position, :votes
+
+                def initialize(option)
+                  @label = option['label']
+                  @position = option['position']
+                  @votes = option['votes']
+                end
+              end
+            end
+          end
         end
 
         class Tweets
           attr_accessor :tweets
 
           def initialize(tweets)
-            @tweets = tweets.collect { |tweet| Tweet.new(tweet) }
+            @tweets = tweets.collect { |tweet| Tweet.new(tweet) } if tweets
           end
         end
 
@@ -201,7 +270,7 @@ module Tweetkit
           attr_accessor :users
 
           def initialize(users)
-            @users = users.collect { |user| User.new(user) }
+            @users = users.collect { |user| User.new(user) } if users
           end
 
           class User
