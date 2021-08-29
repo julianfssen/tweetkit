@@ -1,4 +1,3 @@
-require 'tweetkit/configurable'
 require 'tweetkit/connection'
 require 'tweetkit/client/tweets'
 
