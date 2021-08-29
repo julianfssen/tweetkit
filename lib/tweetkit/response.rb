@@ -39,7 +39,7 @@ module Tweetkit
       end
 
       def extract_and_save_expansions
-        @expansions = @response['includes']
+        @expansions = Expansions.new(@response['includes'])
       end
 
       def extract_and_save_options(**options)
@@ -186,7 +186,33 @@ module Tweetkit
           @places = expansions['places']
           @polls = expansions['polls']
           @tweets = expansions['tweets']
-          @users = expansions['users']
+          @users = Users.new(expansions['users'])
+        end
+
+        class Tweets
+          attr_accessor :tweets
+
+          def initialize(tweets)
+            @tweets = tweets.collect { |tweet| Tweet.new(tweet) }
+          end
+        end
+
+        class Users
+          attr_accessor :users
+
+          def initialize(users)
+            @users = users.collect { |user| User.new(user) }
+          end
+
+          class User
+            attr_accessor :id, :name, :username
+
+            def initialize(user)
+              @id = user['id']
+              @name = user['name']
+              @username = user['username']
+            end
+          end
         end
       end
 
