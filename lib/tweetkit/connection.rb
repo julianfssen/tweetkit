@@ -2,7 +2,6 @@ require 'faraday'
 require 'faraday_middleware'
 require 'tweetkit/auth'
 require 'tweetkit/response'
-require 'pry'
 
 module Tweetkit
   module Connection
