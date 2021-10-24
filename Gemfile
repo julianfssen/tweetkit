@@ -5,10 +5,15 @@ gemspec
 
 gem 'faraday'
 gem 'faraday_middleware'
-gem "minitest", "~> 5.0"
 gem "rake", "~> 12.0"
 gem 'simple_oauth', "~> 0.3.0"
 
+group :development do
+  gem 'yard'
+end
+
 group :test, :development do
+  gem 'dotenv'
   gem 'pry', '~> 0.13.1'
+  gem 'rspec'
 end
