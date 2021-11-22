@@ -27,7 +27,7 @@ module Tweetkit
           if auth_type == 'oauth1'
             conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
           else
-            conn.authorization :Bearer, @bearer_token
+            conn.request :authorization, 'Bearer', @bearer_token
           end
         end
         response = connection.get(url)
