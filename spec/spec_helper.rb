@@ -1,7 +1,7 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require 'dotenv'
 
-BASE_ENV_FILE_PATH = '../.env'
+BASE_ENV_FILE_PATH = '.env'
 
 def traverse_for_env_file(env_file_path, stack_level)
   if stack_level > 5
