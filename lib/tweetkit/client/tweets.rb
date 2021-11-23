@@ -21,6 +21,14 @@ module Tweetkit
         search.evaluate(&block) if block_given?
         get 'tweets/search/recent', **options.merge!({ query: search.current_query })
       end
+
+      def post_tweet(**options)
+        post "tweets", **options
+      end
+
+      def delete_tweet(id)
+        delete "tweets/#{id}"
+      end
     end
   end
 end

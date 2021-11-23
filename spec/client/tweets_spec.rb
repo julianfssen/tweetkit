@@ -38,4 +38,25 @@ describe Tweetkit::Client::Tweets do
       end
     end
   end
+
+  context 'when user context is required' do
+    let(:client) { client_types[:access_token] }
+
+    describe '.post_tweet' do
+      it 'posts text' do
+        response = client.post_tweet(text: 'Hello world')
+        expect(response.tweet.text).not_to be_empty
+      end
+    end
+
+    describe '.delete_tweet' do
+      it 'deletes a tweet' do
+        create_response = client.post_tweet(text: 'Hello world')
+        tweet_id = create_response.tweet.id.to_i
+        delete_response = client.delete_tweet(tweet_id)
+
+        expect(delete_response.response.dig('data', 'deleted')).to be(true)
+      end
+    end
+  end
 end
