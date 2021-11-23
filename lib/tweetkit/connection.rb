@@ -41,13 +41,6 @@ module Tweetkit
       raise e
     end
 
-    def auth_token(type = 'bearer')
-      case type
-      when 'bearer'
-        @bearer_token
-      end
-    end
-
     def build_fields(options)
       fields = {}
       fields_ = options.delete(:fields)
