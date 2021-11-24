@@ -16,36 +16,48 @@ module Tweetkit
       request :get, endpoint, parse_query_and_convenience_headers(options)
     end
 
+    def post(endpoint, **options)
+      request :post, endpoint, parse_query_and_convenience_headers(options)
+    end
+
+    def put(endpoint, **options)
+      request :put, endpoint, parse_query_and_convenience_headers(options)
+    end
+
+    def delete(endpoint, **options)
+      request :delete, endpoint, parse_query_and_convenience_headers(options)
+    end
+
     def request(method, endpoint, data, **options)
-      auth_type = options.delete(:auth_type)
       url = URI.parse("#{BASE_URL}#{endpoint}")
       @previous_url = url
       @previous_query = data
 
-      if method == :get
-        connection = Faraday.new(params: data) do |conn|
-          if auth_type == 'oauth1'
-            conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret
-          else
-            conn.request :authorization, 'Bearer', @bearer_token
-          end
+      connection = Faraday.new do |conn|
+        if token_auth?
+          conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret,
+                               token: @access_token, token_secret: @access_token_secret
+        elsif bearer_auth?
+          conn.request :authorization, 'Bearer', @bearer_token
+        else
+          raise NotImplementedError, 'No known authentication types were configured'
         end
-        response = connection.get(url)
-      else
-        connection = Faraday.new do |f|
-        end
-        response = connection.post(url)
       end
+
+      response = case method
+                 when :get
+                   connection.get(url, data)
+                 when :post
+                   connection.post(url, data.to_json, 'Content-Type' => 'application/json')
+                 when :put
+                   connection.put(url, data.to_json, 'Content-Type' => 'application/json')
+                 when :delete
+                   connection.delete(url, data.to_json, 'Content-Type' => 'application/json')
+                 end
+
       Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
     rescue StandardError => e
       raise e
-    end
-
-    def auth_token(type = 'bearer')
-      case type
-      when 'bearer'
-        @bearer_token
-      end
     end
 
     def build_fields(options)
