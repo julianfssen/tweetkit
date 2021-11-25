@@ -37,13 +37,13 @@ Or install it yourself as:
   client = Tweetkit::Client.new(bearer_token: 'YOUR_BEARER_TOKEN_HERE')
 
   # Initializing via options with OAuth 1.0 credentials
-  client = Tweetkit::Client.new(bearer_token: 'YOUR_BEARER_TOKEN_HERE', consumer_key: 'YOUR_API_KEY_HERE', consumer_token: 'YOUR_API_TOKEN_HERE')
+  client = Tweetkit::Client.new(bearer_token: 'YOUR_BEARER_TOKEN_HERE', consumer_key: 'YOUR_CONSUMER_KEY_HERE', consumer_secret: 'YOUR_CONSUMER_SECRET_HERE')
 
   # You can also initialize the client with a block
   client = Tweetkit::Client.new do |config|
     config.bearer_token = 'YOUR_BEARER_TOKEN_HERE'
-    config.consumer_key = 'YOUR_API_KEY_HERE'
-    config.consumer_token = 'YOUR_API_TOKEN_HERE'
+    config.consumer_key = 'YOUR_CONSUMER_KEY_HERE'
+    config.consumer_secret = 'YOUR_CONSUMER_SECRET_HERE'
   end
 ```
 
