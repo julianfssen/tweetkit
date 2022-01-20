@@ -8,3 +8,4 @@
 /tmp/
 .env
 !.env.example
+Gemfile.lock

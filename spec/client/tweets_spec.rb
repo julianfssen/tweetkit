@@ -44,19 +44,27 @@ describe Tweetkit::Client::Tweets do
 
     describe '.post_tweet' do
       it 'posts text' do
-        response = client.post_tweet(text: 'Hello world')
+        response = client.post_tweet(text: random_test_string)
         expect(response.tweet.text).not_to be_empty
       end
     end
 
     describe '.delete_tweet' do
       it 'deletes a tweet' do
-        create_response = client.post_tweet(text: 'Hello world')
-        tweet_id = create_response.tweet.id.to_i
+        response = client.post_tweet(text: random_test_string)
+        tweet_id = response.tweet.id.to_i
         delete_response = client.delete_tweet(tweet_id)
 
         expect(delete_response.response.dig('data', 'deleted')).to be(true)
       end
     end
+  end
+
+  private
+
+  def random_test_string
+    length = 8
+    random_string = rand(36 ** length).to_s(36)
+    "Hi this is a random string to test the tweetkit gem: #{random_string}"
   end
 end

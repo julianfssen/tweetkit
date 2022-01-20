@@ -42,17 +42,20 @@ module Tweetkit
         else
           raise NotImplementedError, 'No known authentication types were configured'
         end
+
+        conn.request :json
+        conn.response :json
       end
 
       response = case method
                  when :get
                    connection.get(url, data)
                  when :post
-                   connection.post(url, data.to_json, 'Content-Type' => 'application/json')
+                   connection.post(url, data, 'Content-Type' => 'application/json')
                  when :put
-                   connection.put(url, data.to_json, 'Content-Type' => 'application/json')
+                   connection.put(url, data, 'Content-Type' => 'application/json')
                  when :delete
-                   connection.delete(url, data.to_json, 'Content-Type' => 'application/json')
+                   connection.delete(url, data, 'Content-Type' => 'application/json')
                  end
 
       Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }

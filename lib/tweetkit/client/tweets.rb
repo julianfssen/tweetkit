@@ -23,7 +23,7 @@ module Tweetkit
       end
 
       def post_tweet(**options)
-        post "tweets", **options
+        post 'tweets', **options
       end
 
       def delete_tweet(id)
