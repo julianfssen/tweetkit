@@ -9,3 +9,5 @@
 .env
 !.env.example
 Gemfile.lock
+.config
+.ruby-version
