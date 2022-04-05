@@ -8,9 +8,7 @@ module Tweetkit
     include Tweetkit::Auth
     include Tweetkit::Response
 
-    attr_accessor :previous_query, :previous_url
-
-    BASE_URL = 'https://api.twitter.com/2/'
+    BASE_URL = 'https://api.twitter.com/2/'.freeze
 
     def get(endpoint, **options)
       request :get, endpoint, parse_query_and_convenience_headers(options)
@@ -30,8 +28,6 @@ module Tweetkit
 
     def request(method, endpoint, data, **options)
       url = URI.parse("#{BASE_URL}#{endpoint}")
-      @previous_url = url
-      @previous_query = data
 
       connection = Faraday.new do |conn|
         if token_auth?
@@ -58,7 +54,7 @@ module Tweetkit
                    connection.delete(url, data, 'Content-Type' => 'application/json')
                  end
 
-      Tweetkit::Response::Tweets.new response, connection: connection, twitter_request: { previous_url: @previous_url, previous_query: @previous_query }
+      Tweetkit::Response::Tweets.new(response, connection: connection, request: { previous_url: url, previous_query: data })
     rescue StandardError => e
       raise e
     end
@@ -108,10 +104,13 @@ module Tweetkit
 
     def parse_query_and_convenience_headers(options)
       options = options.dup
+
       fields = build_fields(options)
       options.merge!(fields) if fields
+
       expansions = build_expansions(options)
       options.merge!(expansions) if expansions
+
       options
     end
   end

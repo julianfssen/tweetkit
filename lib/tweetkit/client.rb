@@ -4,7 +4,7 @@ require 'tweetkit/client/tweets'
 module Tweetkit
   class Client
     include Tweetkit::Connection
-    include Tweetkit::Client::Tweets
+    include Tweetkit::Client::Base
 
     attr_accessor :access_token, :access_token_secret, :bearer_token, :consumer_key, :consumer_secret, :email, :password
 
