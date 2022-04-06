@@ -3,14 +3,13 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in tweetkit.gemspec
 gemspec
 
-gem 'rake'
+gem "rake"
 
 group :development do
-  gem 'yard'
+  gem "yard"
 end
 
 group :test, :development do
-  gem 'dotenv'
-  gem 'pry'
-  gem 'rspec'
+  gem "dotenv"
+  gem "rspec"
 end
