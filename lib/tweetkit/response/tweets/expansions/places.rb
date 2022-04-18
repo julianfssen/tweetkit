@@ -1,4 +1,4 @@
-module Tweetkit::Response::Tweet::Expansions
+module Tweetkit::Response::Tweets::Expansions
   class Places
     attr_accessor :places
   

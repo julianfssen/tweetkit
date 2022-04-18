@@ -1,7 +1,5 @@
-require 'tweetkit/client/search/conjunctions'
-
 module Tweetkit
-  module Client
+  class Client
     module Search
       class Searcher
         include Conjunctions

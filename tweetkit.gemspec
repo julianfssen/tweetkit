@@ -28,4 +28,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "faraday_middleware", "~> 1.2.0"
   spec.add_dependency "simple_oauth", "~> 0.3.0"
   spec.add_dependency "zeitwerk", "~> 2.5"
+
+  spec.add_development_dependency "dotenv"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "yard"
 end

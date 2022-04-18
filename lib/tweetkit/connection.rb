@@ -1,42 +1,42 @@
-require 'faraday'
-require 'faraday_middleware'
-require 'tweetkit/auth'
-require 'tweetkit/response'
+# require "faraday"
+# require "faraday_middleware"
 
 module Tweetkit
   module Connection
-    include Tweetkit::Auth
-    include Tweetkit::Response
+    # include Pagination
 
-    BASE_URL = 'https://api.twitter.com/2/'.freeze
+    BASE_URL = "https://api.twitter.com/2/".freeze
 
     def get(endpoint, **options)
-      request :get, endpoint, parse_query_and_convenience_headers(options)
+      request :get, endpoint, parse_options(options)
     end
 
     def post(endpoint, **options)
-      request :post, endpoint, parse_query_and_convenience_headers(options)
+      request :post, endpoint, parse_options(options)
     end
 
     def put(endpoint, **options)
-      request :put, endpoint, parse_query_and_convenience_headers(options)
+      request :put, endpoint, parse_options(options)
     end
 
     def delete(endpoint, **options)
-      request :delete, endpoint, parse_query_and_convenience_headers(options)
+      request :delete, endpoint, parse_options(options)
     end
 
     def request(method, endpoint, data, **options)
-      url = URI.parse("#{BASE_URL}#{endpoint}")
-
       connection = Faraday.new do |conn|
+        conn.url BASE_URL
+
         if token_auth?
-          conn.request :oauth, consumer_key: @consumer_key, consumer_secret: @consumer_secret,
-                               token: @access_token, token_secret: @access_token_secret
+          conn.request :oauth,
+                       consumer_key: @consumer_key,
+                       consumer_secret: @consumer_secret,
+                       token: @access_token,
+                       token_secret: @access_token_secret
         elsif bearer_auth?
-          conn.request :authorization, 'Bearer', @bearer_token
+          conn.request :authorization, "Bearer", @bearer_token
         else
-          raise NotImplementedError, 'No known authentication types were configured'
+          raise NotImplementedError, "No known authentication types were configured"
         end
 
         conn.request :json
@@ -45,19 +45,21 @@ module Tweetkit
 
       response = case method
                  when :get
-                   connection.get(url, data)
+                   connection.get(endpoint, data)
                  when :post
-                   connection.post(url, data, 'Content-Type' => 'application/json')
+                   connection.post(endpoint, data)
                  when :put
-                   connection.put(url, data, 'Content-Type' => 'application/json')
+                   connection.put(endpoint, data)
                  when :delete
-                   connection.delete(url, data, 'Content-Type' => 'application/json')
+                   connection.delete(endpoint, data)
                  end
 
-      Tweetkit::Response::Tweets.new(response, connection: connection, request: { previous_url: url, previous_query: data })
+      Tweetkit::Response.new(response)
     rescue StandardError => e
       raise e
     end
+
+    private
 
     def build_fields(options)
       fields = {}
@@ -66,28 +68,28 @@ module Tweetkit
       if fields_ && !fields_.empty?
         fields_.each do |field, value|
           if value.is_a? Array
-            value = value.join(',')
+            value = value.join(",")
           else
-            value = value.delete(' ')
+            value = value.delete(" ")
           end
 
-          field = field.to_s.gsub('_', '.')
+          field = field.to_s.gsub("_", ".")
           fields.merge!({ "#{field}.fields" => value })
         end
       end
 
       options.each do |key, value|
-        next unless key.match? '_fields'
+        next unless key.match? "_fields"
 
         options.delete(key)
 
         if value.is_a? Array
-          value = value.join(',')
+          value = value.join(",")
         else
-          value = value.delete(' ')
+          value = value.delete(" ")
         end
 
-        key = key.to_s.gsub('_', '.')
+        key = key.to_s.gsub("_", ".")
         fields.merge!({ key => value })
       end
 
@@ -98,11 +100,11 @@ module Tweetkit
       expansions = options.delete(:expansions)
       return unless expansions
 
-      expansions = expansions.join(',') if expansions.is_a? Array
+      expansions = expansions.join(",") if expansions.is_a? Array
       { expansions: expansions }
     end
 
-    def parse_query_and_convenience_headers(options)
+    def parse_options(options)
       options = options.dup
 
       fields = build_fields(options)

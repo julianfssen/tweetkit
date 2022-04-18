@@ -1,9 +1,7 @@
-require 'tweetkit/client/tweets'
-
 module Tweetkit
-  module Client
+  class Client
     module Base
-      include Tweetkit::Client::Tweets
+      include Tweets
     end
   end
 end

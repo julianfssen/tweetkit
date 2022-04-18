@@ -1,4 +1,4 @@
-module Tweetkit::Response::Tweet::Expansions
+module Tweetkit::Response::Tweets::Expansions
   class Polls
     attr_accessor :polls
   

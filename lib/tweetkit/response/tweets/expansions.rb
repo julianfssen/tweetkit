@@ -1,4 +1,4 @@
-module Tweetkit::Response::Tweet
+module Tweetkit::Response::Tweets
   class Expansions
     attr_accessor :media, :places, :polls, :tweets, :users
   
