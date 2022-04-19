@@ -1,28 +1,62 @@
 require "faraday"
 
 module Tweetkit
+  # Module for creating and authenticating requests to Twitter API v2 endpoints
   module Connection
     include Auth
-    # include Pagination
 
     BASE_URL = "https://api.twitter.com/2/".freeze
 
+    # Performs a GET request for the specified endpoint
+    #
+    # @param endpoint [String] The API endpoint to fetch, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param options [Hash] Body and header params for the request
+    #
+    # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def get(endpoint, **options)
       request :get, endpoint, parse_options(options)
     end
 
+    # Performs a POST request for the specified endpoint
+    #
+    # @param endpoint [String] The API endpoint to post to, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param options [Hash] Body and header params for the request
+    #
+    # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def post(endpoint, **options)
       request :post, endpoint, parse_options(options)
     end
 
+    # Performs a PUT request for the specified endpoint
+    #
+    # @param endpoint [String] The API endpoint to post to, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param options [Hash] Body and header params for the request
+    #
+    # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def put(endpoint, **options)
       request :put, endpoint, parse_options(options)
     end
 
+    # Performs a DELETE request for the specified endpoint
+    #
+    # @param endpoint [String] The API endpoint to delete to, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param options [Hash] Body and header params for the request
+    #
+    # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def delete(endpoint, **options)
       request :delete, endpoint, parse_options(options)
     end
 
+    private
+
+    # Creates a HTTP request to interact with the Twitter v2 API endpoints
+    #
+    # @param method [Symbol] The HTTP method to perform
+    # @param endpoint [String] The API endpoint to perform the request, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param data [Hash] Body and header params for the request
+    # @param options [Hash] Additional options to create the request
+    #
+    # @return [Tweetkit::Response] Returns a +Tweetkit::Response+ object based on the specified endpoint
     def request(method, endpoint, data, **options)
       connection = Faraday.new(BASE_URL) do |conn|
         conn.request :json
@@ -70,8 +104,12 @@ module Tweetkit
       end
     end
 
-    private
-
+    # Extracts the list of Twitter request fields to pass
+    # @see https://developer.twitter.com/en/docs/twitter-api/fields
+    #
+    # @param options [Hash] Options from the request's body params
+    #
+    # @return [Hash] A hash of formatted Twitter v2 API fields to pass to the request
     def build_fields(options)
       fields = {}
       fields_ = options.delete(:fields)
@@ -107,6 +145,12 @@ module Tweetkit
       fields
     end
 
+    # Extracts the list of Twitter request expansions to pass
+    # @see https://developer.twitter.com/en/docs/twitter-api/expansions
+    #
+    # @param options [Hash] Options from the request's body params
+    #
+    # @return [Hash] A hash of formatted Twitter v2 API expansions to pass to the request
     def build_expansions(options)
       expansions = options.delete(:expansions)
       return unless expansions
@@ -127,6 +171,11 @@ module Tweetkit
       options
     end
 
+    # Creates a formatted error message from Twitter errors
+    # 
+    # @param error [StandardError] The error rescued from the request
+    #
+    # @return [String] A formatted error messages with data from the Twitter error
     def format_error_message(error)
       error_obj = JSON.parse(error.response_body)
 
