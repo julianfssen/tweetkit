@@ -2,29 +2,18 @@
 
 module Tweetkit
   class Response
-    def initialize(response, **options)
-      @response = response.body
-      # @connection = options[:connection]
-      # @prev_request = options[:prev_request]
+    RESOURCE_CLASS_MAP = {
+      tweet: "Tweetkit::Response::Tweet",
+      tweets: "Tweetkit::Response::Tweets"
+    }.freeze
 
-      build_resource(@response)
+    def self.build_resource(response, **options)
+      if options[:method] == :delete
+        true
+      else
+        klass = Object.const_get(RESOURCE_CLASS_MAP[options[:resource]])
+        klass.new(response.body)
+      end
     end
-
-    def build_resource(response)
-    end
-
-    # def next_page
-    #   @connection.params.merge!({ next_token: @response.meta.next_token })
-    #   response = @connection.get(@prev_request[:endpoint])
-
-    #   new(response, connection: @connection, prev_request: { endpoint:, data: })
-    # end
-
-    # def prev_page
-    #   @connection.params.merge!({ previous: @response.meta.previous_token })
-    #   response = @connection.get(@prev_request[:endpoint])
-
-    #   new(response, connection: @connection, prev_request: { endpoint:, data: })
-    # end
   end
 end

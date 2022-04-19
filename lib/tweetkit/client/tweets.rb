@@ -1,8 +1,8 @@
 module Tweetkit
-  module Client
+  class Client
     module Tweets
       def tweet(id, **options)
-        get "tweets/#{id}", **options
+        get "tweets/#{id}", resource: :tweet, **options
       end
 
       def tweets(ids, **options)
@@ -11,11 +11,12 @@ module Tweetkit
         else
           ids = ids.delete(" ")
         end
-        get "tweets", **options.merge!({ ids: ids })
+
+        get "tweets", ids: ids, resource: :tweets, **options
       end
 
       def post_tweet(**options)
-        post "tweets", **options
+        post "tweets", resource: :tweet, **options
       end
 
       def delete_tweet(id)

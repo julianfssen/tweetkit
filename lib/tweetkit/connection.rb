@@ -1,8 +1,8 @@
-# require "faraday"
-# require "faraday_middleware"
+require "faraday"
 
 module Tweetkit
   module Connection
+    include Auth
     # include Pagination
 
     BASE_URL = "https://api.twitter.com/2/".freeze
@@ -24,10 +24,11 @@ module Tweetkit
     end
 
     def request(method, endpoint, data, **options)
-      connection = Faraday.new do |conn|
-        conn.url BASE_URL
+      connection = Faraday.new(BASE_URL) do |conn|
+        conn.request :json
+        conn.response :json
 
-        if token_auth?
+        if token_auth? && method != :get
           conn.request :oauth,
                        consumer_key: @consumer_key,
                        consumer_secret: @consumer_secret,
@@ -39,9 +40,11 @@ module Tweetkit
           raise NotImplementedError, "No known authentication types were configured"
         end
 
-        conn.request :json
-        conn.response :json
+        conn.use Faraday::Response::RaiseError
+        conn.adapter Faraday.default_adapter
       end
+
+      resource = data.delete(:resource)
 
       response = case method
                  when :get
@@ -54,9 +57,17 @@ module Tweetkit
                    connection.delete(endpoint, data)
                  end
 
-      Tweetkit::Response.new(response)
-    rescue StandardError => e
-      raise e
+      Tweetkit::Response.build_resource(response, resource: resource, method: method)
+    rescue Faraday::Error => error
+      message = format_error_message(error)
+
+      if error.kind_of? Faraday::ClientError
+        raise Tweetkit::Error::ClientError.new(message)
+      elsif error.kind_of? Faraday::ServerError
+        raise Tweetkit::Error::ServerError.new(message)
+      else
+        raise error
+      end
     end
 
     private
@@ -114,6 +125,16 @@ module Tweetkit
       options.merge!(expansions) if expansions
 
       options
+    end
+
+    def format_error_message(error)
+      error_obj = JSON.parse(error.response_body)
+
+      <<-ERR
+        Error: #{error_obj["title"]} (#{error_obj["status"]})
+        Description: #{error_obj["detail"]}
+        Info: #{error_obj["type"]}
+      ERR
     end
   end
 end

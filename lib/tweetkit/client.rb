@@ -13,6 +13,7 @@ module Tweetkit
       yield self if block_given?
 
       set_defaults
+      run_initializers
     end
 
     private
@@ -26,6 +27,12 @@ module Tweetkit
         if instance_variable_get(:"@#{key}").nil?
           instance_variable_set(:"@#{key}", ENV["#{key.upcase}"])
         end
+      end
+    end
+
+    def run_initializers
+      Tweetkit::Initializers.constants.each do |initializer|
+        Object.const_get("Tweetkit::Initializers::#{initializer.to_s}").run
       end
     end
   end

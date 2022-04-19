@@ -1,5 +1,5 @@
 module Tweetkit
-  module Response
+  class Response
     class Tweets
       include Enumerable
 
@@ -11,24 +11,14 @@ module Tweetkit
                     :fields,
                     :meta,
                     :options,
-                    :tweets,
-                    :twitter_request
+                    :tweets
 
-      def initialize(data, **options)
-        @tweets = extract_tweets(data)
-        return if @tweets.nil?
+      def initialize(response, **options)
+        @tweets = extract_tweets(response)
 
-        @meta = Meta.new(data["meta"])
-        @expansions = Expansions.new(data["includes"])
-        @connection = options[:connection]
-        @request = options[:request]
-      end
-
-      def extract_tweets(data)
-        data = data["data"]
-        return if data.nil? || data.empty?
-
-        data.collect { |tweet| Tweet.new(tweet) }
+        # TODO: Check tweet meta expansions and annotations
+        # @meta = Meta.new(data["meta"])
+        # @expansions = Expansions.new(data["includes"])
       end
 
       def each(*args, &block)
@@ -37,6 +27,18 @@ module Tweetkit
 
       def last
         tweets.last
+      end
+
+      private
+
+      def extract_tweets(response)
+        data = response["data"]
+
+        if data.kind_of? Array
+          data.collect { |data| Tweet.new(data) }
+        else
+          [Tweet.new(data)]
+        end
       end
     end
   end
