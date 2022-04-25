@@ -1,3 +1,4 @@
+require "debug"
 require "zeitwerk"
 
 loader = Zeitwerk::Loader.for_gem

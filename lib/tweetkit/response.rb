@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Tweetkit
+  # Class for creating a response object from the resources returned by the Twitter v2 API
   class Response
     RESOURCE_CLASS_MAP = {
       tweet: "Tweetkit::Response::Tweet",

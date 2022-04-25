@@ -12,9 +12,9 @@ module Tweetkit::Response::Tweets::Expansions
       attr_accessor :id, :name, :username
   
       def initialize(user)
-        @id = user['id']
-        @name = user['name']
-        @username = user['username']
+        @id = user["id"]
+        @name = user["name"]
+        @username = user["username"]
       end
     end
   end

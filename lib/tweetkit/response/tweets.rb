@@ -1,32 +1,22 @@
 module Tweetkit
   class Response
+    # Class for a collection of Tweets
     class Tweets
       include Enumerable
-
-      attr_accessor :annotations,
-                    :connection,
-                    :context_annotations,
-                    :entity_annotations,
-                    :expansions,
-                    :fields,
-                    :meta,
-                    :options,
-                    :tweets
 
       def initialize(response, **options)
         @tweets = extract_tweets(response)
 
-        # TODO: Check tweet meta expansions and annotations
-        # @meta = Meta.new(data["meta"])
-        # @expansions = Expansions.new(data["includes"])
+        @meta = Meta.new(data["meta"])
+        @expansions = Expansions.new(data["includes"])
       end
 
       def each(*args, &block)
-        tweets.each(*args, &block)
+        @tweets.each(*args, &block)
       end
 
       def last
-        tweets.last
+        @tweets.last
       end
 
       private

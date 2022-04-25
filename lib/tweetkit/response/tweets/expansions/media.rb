@@ -12,8 +12,8 @@ module Tweetkit::Response::Tweets::Expansions
       attr_accessor :media_key, :type
   
       def initialize(media_object)
-        @media_key = media_object['media_key']
-        @type = media_object['type']
+        @media_key = media_object["media_key"]
+        @type = media_object["type"]
       end
     end
   end

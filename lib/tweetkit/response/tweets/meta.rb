@@ -9,11 +9,11 @@ module Tweetkit::Response::Tweets
     end
                               
     def next_token
-      @data['next_token']
+      @data["next_token"]
     end
                               
     def previous_token
-      @data['previous_token']
+      @data["previous_token"]
     end
   end
 end

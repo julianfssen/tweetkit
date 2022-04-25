@@ -177,6 +177,7 @@ module Tweetkit
     #
     # @return [String] A formatted error messages with data from the Twitter error
     def format_error_message(error)
+      debugger
       error_obj = JSON.parse(error.response_body)
 
       <<-ERR

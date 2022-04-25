@@ -1,20 +1,28 @@
 module Tweetkit::Response::Tweet::Annotations::Entity
-  class Cashtags
-    attr_accessor :cashtags
+  class Response
+    class Tweet
+      class Annotations
+        class Entity
+          class Cashtags
+            attr_accessor :cashtags
 
-    def initialize(cashtags)
-      return unless cashtags
+            def initialize(cashtags)
+              return unless cashtags
 
-      @cashtags = cashtags.collect { |cashtag| Cashtag.new(cashtag) }
-    end
+              @cashtags = cashtags.collect { |cashtag| Cashtag.new(cashtag) }
+            end
 
-    class Cashtag
-      attr_accessor :end, :start, :tag
+            class Cashtag
+              attr_accessor :end, :start, :tag
 
-      def initialize(cashtag)
-        @end = cashtag['end']
-        @start = cashtag['start']
-        @tag = cashtag['tag']
+              def initialize(cashtag)
+                @end = cashtag["end"]
+                @start = cashtag["start"]
+                @tag = cashtag["tag"]
+              end
+            end
+          end
+        end
       end
     end
   end
