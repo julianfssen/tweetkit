@@ -10,6 +10,7 @@ module Tweetkit
 
     def self.build_resource(response, **options)
       if options[:method] == :delete
+        # TODO: Check if Tweet is really deleted
         true
       else
         klass = Object.const_get(RESOURCE_CLASS_MAP[options[:resource]])

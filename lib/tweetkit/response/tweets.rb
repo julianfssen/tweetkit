@@ -2,13 +2,15 @@ module Tweetkit
   class Response
     # Class for a collection of Tweets
     class Tweets
+      attr_accessor :tweets
+
       include Enumerable
 
       def initialize(response, **options)
         @tweets = extract_tweets(response)
 
-        @meta = Meta.new(data["meta"])
-        @expansions = Expansions.new(data["includes"])
+        # @meta = Meta.new(data["meta"])
+        # @expansions = Expansions.new(data["includes"])
       end
 
       def each(*args, &block)

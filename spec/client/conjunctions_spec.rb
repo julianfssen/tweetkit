@@ -1,10 +1,10 @@
 require_relative '../spec_helper'
 
 class DummyClass
-  include Conjunctions
+  include Tweetkit::Client::Search::Conjunctions
 end
 
-describe Conjunctions do
+describe Tweetkit::Client::Search::Conjunctions do
   let(:search) { DummyClass.new }
 
   describe '.contains' do
@@ -321,11 +321,13 @@ describe Conjunctions do
 
   describe '.group' do
     it 'joins terms correctly when grouping terms and does not override original methods after grouping' do
-      grouped_result = search.group do
+      queries = Proc.new do
         is :tweet
         contains 'word', 'two words'
         has_one_of :image, :link
       end
+
+      grouped_result = search.send(:group, &queries)
 
       is_result = search.is(:tweet)
       contains_result = search.contains('word', 'two words')

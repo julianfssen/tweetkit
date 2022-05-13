@@ -66,6 +66,7 @@ describe Tweetkit::Client::Tweets do
 
   def generate_text
     random_string = rand(36 ** 8).to_s(36)
+
     "Hi! This is a random string to test the Tweetkit gem: #{random_string}"
   end
 end

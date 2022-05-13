@@ -27,7 +27,6 @@ module Tweetkit
     #   end
     #
     # @return [Tweetkit::Client] An instance of Tweetkit::Client
-
     def initialize(**opts)
       opts.each do |key, value|
         instance_variable_set(:"@#{key}", value)
