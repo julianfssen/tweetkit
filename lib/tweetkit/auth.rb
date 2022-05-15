@@ -1,6 +1,8 @@
 module Tweetkit
   # Module for checking client authentication methods
   module Auth
+    private
+
     # Determines if requests are to be authenticated with OAuth 1.0a (with consumer and access tokens)
     #
     # @return [Boolean]

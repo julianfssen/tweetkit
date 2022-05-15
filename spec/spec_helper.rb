@@ -18,6 +18,5 @@ end
 
 traverse_for_env_file(BASE_ENV_FILE_PATH, 0)
 
-require "debug"
 require "tweetkit"
 require "rspec"

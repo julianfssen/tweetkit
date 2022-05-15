@@ -8,13 +8,20 @@ module Tweetkit
       tweets: "Tweetkit::Response::Tweets"
     }.freeze
 
-    def self.build_resource(response, **options)
-      if options[:method] == :delete
-        # TODO: Check if Tweet is really deleted
-        true
-      else
-        klass = Object.const_get(RESOURCE_CLASS_MAP[options[:resource]])
-        klass.new(response.body)
+    class << self
+      def build_resource(response, **options)
+        if options[:method] == :delete
+          tweet_deleted?(response)
+        else
+          klass = Object.const_get(RESOURCE_CLASS_MAP[options[:resource]])
+          klass.new(response.body)
+        end
+      end
+
+      private
+
+      def tweet_deleted?(response)
+        response.body.dig("data", "deleted")
       end
     end
   end

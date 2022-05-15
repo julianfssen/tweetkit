@@ -4,8 +4,11 @@ module Tweetkit
   # Module for creating and authenticating requests to Twitter API v2 endpoints
   module Connection
     include Auth
+    include OptionsBuilder
 
     BASE_URL = "https://api.twitter.com/2/".freeze
+
+    private
 
     # Performs a GET request for the specified endpoint
     #
@@ -14,7 +17,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def get(endpoint, **options)
-      request :get, endpoint, parse_options(options)
+      request :get, endpoint, build_options(options)
     end
 
     # Performs a POST request for the specified endpoint
@@ -24,7 +27,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def post(endpoint, **options)
-      request :post, endpoint, parse_options(options)
+      request :post, endpoint, build_options(options)
     end
 
     # Performs a PUT request for the specified endpoint
@@ -34,7 +37,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def put(endpoint, **options)
-      request :put, endpoint, parse_options(options)
+      request :put, endpoint, build_options(options)
     end
 
     # Performs a DELETE request for the specified endpoint
@@ -44,10 +47,8 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def delete(endpoint, **options)
-      request :delete, endpoint, parse_options(options)
+      request :delete, endpoint, build_options(options)
     end
-
-    private
 
     # Creates a HTTP request to interact with the Twitter v2 API endpoints
     #
@@ -102,73 +103,6 @@ module Tweetkit
       else
         raise error
       end
-    end
-
-    # Extracts the list of Twitter request fields to pass
-    # @see https://developer.twitter.com/en/docs/twitter-api/fields
-    #
-    # @param options [Hash] Options from the request's body params
-    #
-    # @return [Hash] A hash of formatted Twitter v2 API fields to pass to the request
-    def build_fields(options)
-      fields = {}
-      fields_ = options.delete(:fields)
-
-      if fields_ && !fields_.empty?
-        fields_.each do |field, value|
-          if value.is_a? Array
-            value = value.join(",")
-          else
-            value = value.delete(" ")
-          end
-
-          field = field.to_s.gsub("_", ".")
-          fields.merge!({ "#{field}.fields" => value })
-        end
-      end
-
-      options.each do |key, value|
-        next unless key.match? "_fields"
-
-        options.delete(key)
-
-        if value.is_a? Array
-          value = value.join(",")
-        else
-          value = value.delete(" ")
-        end
-
-        key = key.to_s.gsub("_", ".")
-        fields.merge!({ key => value })
-      end
-
-      fields
-    end
-
-    # Extracts the list of Twitter request expansions to pass
-    # @see https://developer.twitter.com/en/docs/twitter-api/expansions
-    #
-    # @param options [Hash] Options from the request's body params
-    #
-    # @return [Hash] A hash of formatted Twitter v2 API expansions to pass to the request
-    def build_expansions(options)
-      expansions = options.delete(:expansions)
-      return unless expansions
-
-      expansions = expansions.join(",") if expansions.is_a? Array
-      { expansions: expansions }
-    end
-
-    def parse_options(options)
-      options = options.dup
-
-      fields = build_fields(options)
-      options.merge!(fields) if fields
-
-      expansions = build_expansions(options)
-      options.merge!(expansions) if expansions
-
-      options
     end
 
     # Creates a formatted error message from Twitter errors
