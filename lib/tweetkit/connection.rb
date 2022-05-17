@@ -4,7 +4,7 @@ module Tweetkit
   # Module for creating and authenticating requests to Twitter API v2 endpoints
   module Connection
     include Auth
-    include OptionsBuilder
+    include RequestOptionsBuilder
 
     BASE_URL = "https://api.twitter.com/2/".freeze
 
@@ -17,7 +17,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def get(endpoint, **options)
-      request :get, endpoint, build_options(options)
+      request :get, endpoint, build_request_options(options)
     end
 
     # Performs a POST request for the specified endpoint
@@ -27,7 +27,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def post(endpoint, **options)
-      request :post, endpoint, build_options(options)
+      request :post, endpoint, build_request_options(options)
     end
 
     # Performs a PUT request for the specified endpoint
@@ -37,7 +37,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def put(endpoint, **options)
-      request :put, endpoint, build_options(options)
+      request :put, endpoint, build_request_options(options)
     end
 
     # Performs a DELETE request for the specified endpoint
@@ -47,7 +47,7 @@ module Tweetkit
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
     def delete(endpoint, **options)
-      request :delete, endpoint, build_options(options)
+      request :delete, endpoint, build_request_options(options)
     end
 
     # Creates a HTTP request to interact with the Twitter v2 API endpoints

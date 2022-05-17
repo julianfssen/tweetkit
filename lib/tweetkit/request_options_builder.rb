@@ -9,6 +9,12 @@ module Tweetkit
   # * *Fields*: https://developer.twitter.com/en/docs/twitter-api/fields 
   # * *Expansions*: https://developer.twitter.com/en/docs/twitter-api/expansions
   #
+  # === Using fields and expansions
+  #
+  # Read more: https://developer.twitter.com/en/docs/twitter-api/data-dictionary/using-fields-and-expansions
+  #
+  # === Fields
+  #
   # Fields can be passed in two ways:
   #   # As a standalone argument
   #   client.tweet(123456790, tweet_fields: "attachments, author_id, created_at")
@@ -39,10 +45,41 @@ module Tweetkit
   #   # Symbol and integer values can also be passed
   #   client.tweet(123456790, tweet_fields: ["attachments", :author_id, 10])
   #
+  # === Expansions
+  #
+  # Expansions are passed in an +expansions+ argument, with an array or a comma-concatenated string of options:
+  #   # Passing in expansions as an array
+  #   client.tweet(123456790, expansions: ["author_id", "referenced_tweets.id"])
+  #
+  #   # Passing in expansions as a comma-concatenated string
+  #   client.tweet(123456790, expansions: "author_id, referenced_tweets.id")
+  #
+  # The list of valid expansions that can be passed is listed here:
+  # https://developer.twitter.com/en/docs/twitter-api/expansions
+  #
+  # === Valid fields and expansions
+  #
   # Check the specific API reference for each Twitter endpoint to find out which fields or expansions are valid.
   # For example, the valid fields and expansions for fetching a single Tweet is listed here: 
   # https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
-  module OptionsBuilder
+  module RequestOptionsBuilder
+    # Builds a hash from fields and expansions passed in
+    #
+    # @param options [Hash] Fields and expansions options
+    #
+    # @return [Hash] A hash of formatted fields and expansions
+    def build_request_options(options)
+      options = options.dup
+
+      fields = build_fields(options)
+      options.merge!(fields) if fields
+
+      expansions = build_expansions(options)
+      options.merge!(expansions) if expansions
+
+      options
+    end
+
     private
 
     # Extracts the list of Twitter request fields to pass
@@ -57,8 +94,10 @@ module Tweetkit
 
       if requested_fields && !requested_fields.empty?
         requested_fields.each do |field, value|
-          if value.is_a?(Array)
-            value = value.join(",")
+          if value.is_a? Array
+          value = value
+            .collect { |v| v.strip }
+            .join(",")
           else
             value = value.delete(" ")
           end
@@ -74,7 +113,9 @@ module Tweetkit
         options.delete(key)
 
         if value.is_a? Array
-          value = value.join(",")
+          value = value
+            .collect { |v| v.strip }
+            .join(",")
         else
           value = value.delete(" ")
         end
@@ -96,22 +137,15 @@ module Tweetkit
       expansions = options.delete(:expansions)
       return unless expansions
 
-      expansions = expansions.join(",") if expansions.is_a?(Array)
+      if expansions.is_a?(Array)
+        expansions = expansions
+          .collect { |expansion| expansion.strip }
+          .join(",") 
+      else
+        expansions = expansions.delete(" ")
+      end
+
       { expansions: expansions }
-    end
-
-    def build_options(options)
-      options = options.dup
-
-      fields = build_fields(options)
-      options.merge!(fields) if fields
-
-      expansions = build_expansions(options)
-      options.merge!(expansions) if expansions
-
-      debugger
-
-      options
     end
   end
 end
