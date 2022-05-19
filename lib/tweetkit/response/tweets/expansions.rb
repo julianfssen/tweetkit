@@ -1,16 +1,16 @@
 module Tweetkit
   class Response
     class Tweets
+      # Class for initializing expansions data and converting them into their respective classes
       class Expansions
         attr_accessor :media, :places, :polls, :tweets, :users
       
         def initialize(expansions)
-          # debugger
           return unless expansions
       
           @media = Media.new(expansions["media"])
-          @places = expansions["places"]
-          @polls = expansions["polls"]
+          @places = Places.new(expansions["places"])
+          @polls = Polls.new(expansions["polls"])
           @tweets = Tweets.new(expansions["tweets"])
           @users = Users.new(expansions["users"])
         end

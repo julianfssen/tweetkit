@@ -8,7 +8,7 @@ module Tweetkit
       #
       # @param [Integer, String] id The Tweet ID to fetch
       #
-      # @option options [String] TODO
+      # @option options [Hash] "" See {#Tweetkit::RequestOptionsBuilder}
       #
       # @example Fetching a Tweet
       #   # Fetching a Tweet with a given ID
@@ -17,7 +17,7 @@ module Tweetkit
       #   # Fetching a Tweet with a given ID and options
       #   client.tweet(123456789)
       #
-      # @return [Tweetkit::Response::Tweet] An instance of +Tweetkit::Response::Tweet+
+      # @return [Tweetkit::Response::Tweet] An instance of {#Tweetkit::Response::Tweet}
       def tweet(id, **options)
         get "tweets/#{id}", resource: :tweet, **options
       end
@@ -26,7 +26,7 @@ module Tweetkit
       #
       # @param [Array<String, Integer>, String] ids The Tweet IDs to fetch
       #
-      # @option options [String] TODO
+      # @option options [Hash] "" See {#Tweetkit::RequestOptionsBuilder}
       #
       # @example Fetching Tweets
       #   # Fetching a collection of Tweets with an array of IDs
@@ -50,7 +50,7 @@ module Tweetkit
       #
       # @param [Array<String, Integer>, String] text The Tweet text to be posted. Required only if the Tweet does not contain any media (images, videos)
       #
-      # @option options [String] TODO
+      # @option options [Hash] "" See {#Tweetkit::RequestOptionsBuilder}
       #
       # @example Posting a Tweet
       #   # Fetching a collection of Tweets with an array of IDs

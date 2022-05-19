@@ -11,6 +11,7 @@ module Tweetkit
             @polls = polls.collect { |poll| Poll.new(poll) }
           end
         
+          # Class for poll data in a Tweet's expansion
           class Poll
             attr_accessor :id, :options
         
@@ -19,6 +20,7 @@ module Tweetkit
               @options = Options.new(poll['options'])
             end
         
+            # Class for a Twitter poll's options
             class Options
               attr_accessor :options
         
@@ -26,6 +28,7 @@ module Tweetkit
                 @options = options.collect { |option| Option.new(option) }
               end
         
+              # Class for a single Twitter poll option
               class Option
                 attr_accessor :label, :position, :votes
         

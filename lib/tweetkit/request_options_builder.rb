@@ -145,7 +145,7 @@ module Tweetkit
         expansions = expansions.delete(" ")
       end
 
-      { expansions: expansions }
+      { "expansions" => expansions }
     end
   end
 end

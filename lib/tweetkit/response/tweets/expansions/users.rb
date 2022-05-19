@@ -11,6 +11,7 @@ module Tweetkit
             @users = users.collect { |user| User.new(user) }
           end
         
+          # Class for user data in a Tweet's expansion
           class User
             attr_accessor :id, :name, :username
         

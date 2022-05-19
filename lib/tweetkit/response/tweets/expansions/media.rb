@@ -2,6 +2,7 @@ module Tweetkit
   class Response
     class Tweets
       class Expansions
+        # Class for a Tweet's media objects (e.g. audio, images, videos)
         class Media
           attr_accessor :media
         
@@ -11,6 +12,7 @@ module Tweetkit
             @media = media.collect { |media_object| MediaObject.new(media_object) }
           end
         
+          # Class for a media object, with info on it's unique identifier (media key) and media type
           class MediaObject
             attr_accessor :media_key, :type
         

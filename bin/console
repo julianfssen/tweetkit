@@ -31,7 +31,7 @@ def reload!
 end
 
 def client
-  @client ||= Tweetkit::Client.new
+  @client ||= Tweetkit::Client.new(bearer_token: ENV["BEARER_TOKEN"])
 end
 
 

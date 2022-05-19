@@ -30,6 +30,7 @@ module Tweetkit
       TYPE_URLENCODED = "application/x-www-form-urlencoded"
   
       extend Forwardable
+
       def_delegator :"Faraday::Utils", :parse_nested_query
   
       def initialize(app, options)

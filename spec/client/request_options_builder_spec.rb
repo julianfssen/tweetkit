@@ -7,7 +7,6 @@ describe Tweetkit::RequestOptionsBuilder do
     it "accepts a :fields argument with a hash of values and returns a hash of fields correctly" do
       options = client.build_request_options(fields: { tweet: "attachments, author_id, created_at" })
 
-      expect(options.has_key?("tweet.fields")).to be(true)
       expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
     end
 
@@ -15,14 +14,12 @@ describe Tweetkit::RequestOptionsBuilder do
       it "accepts a comma-concatenated string of values and returns a hash of fields correctly" do
         options = client.build_request_options(tweet_fields: "attachments, author_id, created_at")
 
-        expect(options.has_key?("tweet.fields")).to be(true)
         expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
       end
 
       it "accepts a array of values and returns a hash of fields correctly" do
         options = client.build_request_options(tweet_fields: ["attachments", "author_id", "created_at"])
 
-        expect(options.has_key?("tweet.fields")).to be(true)
         expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
       end
     end
@@ -33,18 +30,28 @@ describe Tweetkit::RequestOptionsBuilder do
       it "accepts a comma-concatenated string of values and returns a hash of expansions correctly" do
         options = client.build_request_options(expansions: "author_id, referenced_tweets.id, in_reply_to_user_id")
 
-        expect(options.has_key?(:expansions)).to be(true)
-        expect(options[:expansions]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
+        expect(options["expansions"]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
       end
 
       it "accepts a array of values and returns a hash of expansions correctly" do
         options = client.build_request_options(expansions: ["author_id", "referenced_tweets.id", "in_reply_to_user_id"])
 
-        expect(options.has_key?(:expansions)).to be(true)
-        expect(options[:expansions]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
+        expect(options["expansions"]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
       end
     end
   end
 
-  # TODO: Add tests for combination of fields and expansions
+  describe "combined query" do
+    it "accepts a combination of fields and expansions and returns a hash of request options correctly" do
+      options = client.build_request_options(
+        tweet_fields: "attachments, author_id, created_at",
+        fields: { media: ["public_metrics", "duration_ms"] },
+        expansions: "author_id, referenced_tweets.id, in_reply_to_user_id"
+      )
+
+      expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
+      expect(options["media.fields"]).to eq("public_metrics,duration_ms")
+      expect(options["expansions"]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
+    end
+  end
 end
