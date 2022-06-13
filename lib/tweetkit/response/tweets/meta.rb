@@ -2,7 +2,6 @@ module Tweetkit
   class Response
     class Tweets
       # Class for pagination tokens and other Twitter API metadata
-      #
       # @see https://developer.twitter.com/en/docs/twitter-api/pagination
       class Meta
         attr_accessor :data

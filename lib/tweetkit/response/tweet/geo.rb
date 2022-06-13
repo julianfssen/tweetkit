@@ -1,31 +1,42 @@
 module Tweetkit
   class Response
     class Tweet
+      # Contains details about the location tagged by the user in this Tweet, if they specified one.
+      # To return this field, add +{ tweet_fields: "geo" } or { fields: { tweet: "geo" } }+ in the request's query parameter.
       class Geo
-        attr_accessor :coordinates, :place_id
+        attr_accessor :geo
+
+        alias_method :x, :x_coordinate
+        alias_method :y, :y_coordinate
 
         def initialize(geo)
           return unless geo
 
-          @coordinates = Coordinates.new(geo["coordinates"])
-          @place_id = geo["place_id"]
+          @geo = geo
         end
 
-        class Coordinates
-          attr_accessor :coordinates, :type
+        # A pair of decimal values representing the precise location of the user (latitude, longitude). This value be null unless the user explicitly shared their precise location.
+        def coordinates
+          geo["coordinates"]["coordinates"]
+        end
 
-          def initialize(coordinates)
-            @coordinates = coordinates["coordinates"]
-            @type = coordinates["point"]
-          end
+        # Describes the type of coordinate. The only value supported at present is Point.
+        def coordinate_type
+          geo["coordinates"]["type"]
+        end
 
-          def x
-            coordinates[0]
-          end
+        # The unique identifier of the place, if this is a point of interest tagged in the Tweet.
+        # You can obtain the expanded object in includes.places by adding expansions=geo.place_id in the request's query parameter.
+        def place_id
+          geo["place_id"]
+        end
 
-          def y
-            coordinates[0]
-          end
+        def x_coordinate
+          coordinates[0]
+        end
+
+        def y_coordinate
+          coordinates[1]
         end
       end
     end

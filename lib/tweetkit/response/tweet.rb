@@ -2,7 +2,7 @@ module Tweetkit
   class Response
     # Class for individual Tweets
     class Tweet
-      attr_accessor :attachments, :data
+      attr_accessor :data
 
       def initialize(data)
         if data["data"].nil?
@@ -10,9 +10,6 @@ module Tweetkit
         else
           @data = data["data"]
         end
-
-        # @annotations = Annotations.new(data["context_annotations"], data["entities"])
-        # @attachments = Attachments.new(data["attachments"])
       end
 
       # Unique ID for this Tweet
@@ -163,13 +160,17 @@ module Tweetkit
         data["withheld"]
       end
 
+      def metrics
+        Metrics.new(public_metrics: , private_metrics:, organic_metrics:, promoted_metrics:)
+      end
+
       # Engagement metrics for the Tweet at the time of the request.
       #
       # @note The field +tweet.fields=public_metrics+ must be specified when fetching the tweet to access this data
       #
       # @return [Hash] Engagement metrics for the Tweet at the time of the request.
       def public_metrics
-        data["public_metrics"]
+        metrics.public_metrics
       end
 
       # Non-public engagement metrics for the Tweet at the time of the request.
@@ -178,8 +179,13 @@ module Tweetkit
       # @note This is a private metric, and requires the use of OAuth 2.0 User Context authentication
       #
       # @return [Hash] Non-public engagement metrics for the Tweet at the time of the request.
+      def private_metrics
+        metrics.private_metrics
+      end
+
+      # @see private_metrics
       def non_public_metrics
-        data["non_public_metrics"]
+        private_metrics
       end
 
       # Organic engagement metrics for the Tweet at the time of the request.
@@ -189,7 +195,7 @@ module Tweetkit
       #
       # @return [Hash] Organic engagement metrics for the Tweet at the time of the request.
       def organic_metrics
-        data["organic_metrics"]
+        metrics.organic_metrics
       end
 
       # Engagement metrics for the Tweet at the time of the request in a promoted context.
@@ -199,7 +205,7 @@ module Tweetkit
       #
       # @return [Hash] Engagement metrics for the Tweet at the time of the request in a promoted context.
       def promoted_metrics
-        data["promoted_metrics"]
+        metrics.promoted_metrics
       end
 
       # @see possibility_sensitive
@@ -260,6 +266,25 @@ module Tweetkit
       # @return [String] The URL to the tweet.
       def url
         "https://twitter.com/#{author_id}/status/#{id}"
+      end
+
+      # @see ContextAnnotations
+      def context_annotations
+        @context_annotations ||= ContextAnnotations.new(data["context_annotations"])
+      end
+
+      # @see EntityAnnotations
+      def entity_annotations
+        @entity_annotations ||= EntityAnnotations.new(data["entities"])
+      end
+
+      # @see Attachments
+      def attachments
+        @attachments ||= Attachments.new(data["attachments"]["media_keys"])
+      end
+
+      def polls
+        @polls ||= Polls.new(data["attachments"]["poll_ids"])
       end
     end
   end

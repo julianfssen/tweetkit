@@ -2,6 +2,7 @@ module Tweetkit
   class Response
     class Tweets
       # Class for initializing expansions data and converting them into their respective classes
+      # @see https://developer.twitter.com/en/docs/twitter-api/expansions
       class Expansions
         attr_accessor :media, :places, :polls, :tweets, :users
       

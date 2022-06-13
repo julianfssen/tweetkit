@@ -2,39 +2,32 @@ module Tweetkit
   class Response
     class Tweet
       class Metrics
-        attr_accessor :public_metrics
+        attr_accessor :metrics
 
         def initialize(**metrics)
           return unless metrics
 
-          @public_metrics = Public.new(metrics[:public_metrics])
+          @metrics = metrics
         end
 
-        class Public
-          attr_accessor :like_count, :quote_count, :reply_count, :retweet_count
+        # @see Public
+        def public_metrics
+          @public_metrics ||= Public.new(metrics[:public_metrics])
+        end
 
-          def initialize(public_metric)
-            @like_count = public_metric["like_count"]
-            @quote_count = public_metric["quote_count"]
-            @reply_count = public_metric["reply_count"]
-            @retweet_count = public_metric["retweet_count"]
-          end
+        # @see Private
+        def private_metrics
+          @private_metrics ||= Private.new(metrics[:private_metrics])
+        end
 
-          def likes
-            @like_count
-          end
+        # @see Organic
+        def organic_metrics
+          @organic_metrics ||= Organic.new(metrics[:organic_metrics])
+        end
 
-          def quotes
-            @quote_count
-          end
-
-          def replies
-            @reply_count
-          end
-
-          def retweets
-            @retweet_count
-          end
+        # @see Promoted
+        def promoted_metrics
+          @promoted_metrics ||= Promoted.new(metrics[:promoted_metrics])
         end
       end
     end
