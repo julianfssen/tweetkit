@@ -368,7 +368,7 @@ module Tweetkit
               end
             end
             terms = terms.join(connector)
-            append_to_current_query(terms)
+            append_to_query(terms)
             terms
           end
         end
@@ -386,7 +386,7 @@ module Tweetkit
             end
             terms = terms.collect { |term| "#{operator}:#{term}" }
             terms = terms.join(connector)
-            append_to_current_query(terms)
+            append_to_query(terms)
             terms
           end
         end
@@ -404,16 +404,16 @@ module Tweetkit
             end
             terms = terms.collect { |term| "-#{term}" }
             terms = terms.join(' ')
-            append_to_current_query(terms)
+            append_to_query(terms)
             terms
           end
         end
       
-        def append_to_current_query(term)
-          if @current_query
-            @current_query += " #{term}"
+        def append_to_query(term)
+          if @query
+            @query += " #{term}"
           else
-            @current_query = term
+            @query = term
           end
         end
       
@@ -484,7 +484,7 @@ module Tweetkit
           def combine_terms
             @combined_grouped_terms = @grouped_terms.join(' ')
             @combined_grouped_terms = "(#{@combined_grouped_terms})"
-            append_to_current_query(@combined_grouped_terms)
+            append_to_query(@combined_grouped_terms)
           end
       
           instance_eval(&block)

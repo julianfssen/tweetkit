@@ -29,10 +29,10 @@ module Tweetkit
       class SearchFactory
         include Conjunctions
 
-        attr_accessor :current_query
+        attr_accessor :query
 
         def initialize(term)
-          @current_query = term
+          @query = term
         end
 
         def opts
@@ -67,7 +67,7 @@ module Tweetkit
       def search(query = "", type: :tweet, **options, &block)
         search = SearchFactory.new(query)
         search.evaluate(&block) if block_given?
-        get("tweets/search/recent", **options.merge!({ query: search.current_query }))
+        get("tweets/search/recent", **options.merge!({ query: search.query }))
       end
     end
   end
