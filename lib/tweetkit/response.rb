@@ -11,7 +11,7 @@ module Tweetkit
     class << self
       def build_resource(response, **options)
         if options[:method] == :delete
-          tweet_deleted?(response)
+          resource_deleted?(response)
         else
           klass = Object.const_get(RESOURCE_CLASS_MAP[options[:resource]])
           klass.new(response.body)
@@ -20,7 +20,7 @@ module Tweetkit
 
       private
 
-      def tweet_deleted?(response)
+      def resource_deleted?(response)
         response.body.dig("data", "deleted")
       end
     end

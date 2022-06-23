@@ -1,10 +1,21 @@
+require "forwardable"
+
 module Tweetkit
   class Response
     # Class for a collection of Tweets
     class Tweets
+      extend Forwardable
+      include Enumerable
+
       attr_accessor :response
 
-      include Enumerable
+      # @!method next_token
+      #   @see Tweetkit::Response::Tweets::Meta#next_token
+      #   @return [String]
+      # @!method prev_token
+      #   @see Tweetkit::Response::Tweets::Meta#prev_token
+      #   @return [String]
+      def_delegators :meta, :next_token, :prev_token, :previous_token
 
       def initialize(response, **options)
         @response = response
@@ -30,6 +41,8 @@ module Tweetkit
       #
       # @return [Tweetkit::Response::Tweets::Meta] Tweets metadata
       def meta
+        return if response["meta"].nil?
+
         @meta ||= Meta.new(response["meta"])
       end
 
@@ -37,6 +50,8 @@ module Tweetkit
       #
       # @return [Tweetkit::Response::Tweets::Expansions] Expansions data
       def expansions
+        return if response["includes"].nil?
+
         @expansions ||= Expansions.new(response["includes"])
       end
 

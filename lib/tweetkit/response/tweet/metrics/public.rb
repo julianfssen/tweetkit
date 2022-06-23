@@ -7,11 +7,6 @@ module Tweetkit
         class Public
           attr_accessor :public_metrics
 
-          alias_method :likes, :like_count
-          alias_method :quotes, :quote_count
-          alias_method :replies, :reply_count
-          alias_method :retweets, :retweet_count
-
           def initialize(public_metrics)
             @public_metrics = public_metrics
           end
@@ -43,6 +38,11 @@ module Tweetkit
           def retweet_count
             public_metrics["retweet_count"]
           end
+
+          alias_method :likes, :like_count
+          alias_method :quotes, :quote_count
+          alias_method :replies, :reply_count
+          alias_method :retweets, :retweet_count
         end
       end
     end

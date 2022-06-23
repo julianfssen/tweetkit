@@ -8,13 +8,6 @@ module Tweetkit
         class Promoted
           attr_accessor :promoted_metrics
 
-          alias_method :impressions, :impression_count
-          alias_method :link_clicks, :url_link_clicks
-          alias_method :profile_clicks, :user_profile_clicks
-          alias_method :retweets, :retweet_count
-          alias_method :replies, :reply_count
-          alias_method :likes, :like_count
-
           def initialize(promoted_metrics)
             @promoted_metrics = promoted_metrics
           end
@@ -63,6 +56,13 @@ module Tweetkit
           def like_count
             promoted_metrics["like_count"]
           end
+
+          alias_method :impressions, :impression_count
+          alias_method :link_clicks, :url_link_clicks
+          alias_method :profile_clicks, :user_profile_clicks
+          alias_method :retweets, :retweet_count
+          alias_method :replies, :reply_count
+          alias_method :likes, :like_count
         end
       end
     end

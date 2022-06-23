@@ -22,9 +22,11 @@ module Tweetkit
         # The token required to fetch the next page of results
         #
         # @return [String]
-        def previous_token
+        def prev_token
           @data["previous_token"]
         end
+
+        alias_method :previous_token, :prev_token
       end
     end
   end

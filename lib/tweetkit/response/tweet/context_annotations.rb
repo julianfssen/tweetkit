@@ -22,41 +22,57 @@ module Tweetkit
           end
 
           # Contains elements which identify detailed information regarding the domain classification based on Tweet text.
+          #
+          # @return [Hash]
           def domain
             @context_annotation["domain"]
           end
 
           # Contains the numeric value of the domain.
+          #
+          # @return [String]
           def domain_id
             domain["id"]
           end
 
           # Domain name based on the Tweet text.
+          #
+          # @return [String]
           def domain_name
             domain["name"]
           end
 
           # Long form description of domain classification.
+          #
+          # @return [String]
           def domain_description
             domain["description"]
           end
 
           # Contains elements which identify detailed information regarding the domain classification bases on Tweet text.
+          #
+          # @return [Hash]
           def entity
             @context_annotation["entity"]
           end
 
           # Unique value which correlates to an explicitly mentioned Person, Place, Product or Organization
+          #
+          # @return [String]
           def entity_id
             entity["id"]
           end
 
           # Name or reference of entity referenced in the Tweet.
+          #
+          # @return [String]
           def entity_name
             entity["name"]
           end
 
           # Additional information regarding referenced entity.
+          #
+          # @return [String]
           def entity_description
             entity["description"]
           end

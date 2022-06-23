@@ -34,5 +34,12 @@ def client
   @client ||= Tweetkit::Client.new(bearer_token: ENV["BEARER_TOKEN"])
 end
 
+def tweet
+  @tweet ||= client.tweet(1212092628029698048, all_public_fields_and_expansions: true)
+end
+
+def tweets
+  @tweets ||= client.tweets([1212092628029698048, 1199786642791452673], all_public_fields_and_expansions: true)
+end
 
 IRB.start(__FILE__)

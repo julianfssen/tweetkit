@@ -8,10 +8,6 @@ module Tweetkit
         class Private
           attr_accessor :private_metrics
 
-          alias_method :impressions, :impression_count
-          alias_method :link_clicks, :url_link_clicks
-          alias_method :profile_clicks, :user_profile_clicks
-
           def initialize(private_metrics)
             @private_metrics = private_metrics
           end
@@ -39,6 +35,10 @@ module Tweetkit
           def user_profile_clicks
             private_metrics["user_profile_clicks"]
           end
+
+          alias_method :impressions, :impression_count
+          alias_method :link_clicks, :url_link_clicks
+          alias_method :profile_clicks, :user_profile_clicks
         end
       end
     end

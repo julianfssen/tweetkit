@@ -2,7 +2,7 @@ module Tweetkit
   class Response
     # Class for individual Tweets
     class Tweet
-      attr_accessor :data
+      attr_accessor :data, :expansions
 
       def initialize(data)
         if data["data"].nil?
@@ -10,6 +10,8 @@ module Tweetkit
         else
           @data = data["data"]
         end
+
+        @expansions = Expansions.new(data["includes"]) unless data["includes"].nil?
       end
 
       # Unique ID for this Tweet
@@ -19,26 +21,11 @@ module Tweetkit
         data["id"]
       end
 
-      # @see text
-      def body
-        text
-      end
-
-      # @see text
-      def content
-        text
-      end
-
       # The content of the Tweet
       # 
       # @return [String] The content of the Tweet
       def text
         data["text"]
-      end
-
-      # @see created_at
-      def date
-        created_at
       end
 
       # The time (ISO 8601) the Tweet was created
@@ -59,11 +46,6 @@ module Tweetkit
         data["author_id"]
       end
 
-      # @see conversation_id
-      def parent_tweet_id
-        conversation_id
-      end
-
       # Returns the origin / root Tweet ID of the conversation (which includes direct replies, replies of replies)
       # 
       # @note The field +tweet.fields=conversation_id+ must be specified when fetching the tweet to access this data
@@ -71,11 +53,6 @@ module Tweetkit
       # @return [String] Returns the origin / root Tweet ID of the conversation
       def conversation_id
         data["conversation_id"]
-      end
-
-      # @see in_reply_to_user_id
-      def reply_to
-        in_reply_to_user_id
       end
 
       # If this Tweet is a reply, returns the user ID of the parent tweet's author
@@ -91,26 +68,38 @@ module Tweetkit
       #
       # @note The field +tweet.fields=referenced_tweets+ must be specified when fetching the tweet to access this data
       #
-      # @return [Array] A list of Tweets this Tweet refers to
+      # @return [Array] A list of hashes containing the Tweet ID and reply type (either as a Retweet, Quoted Tweet, or reply) that this Tweet refers to if there are no tweet expansions.
+      #
+      # @return [Tweetkit::Response::Tweets] An object containing the expanded Tweets (either as a Retweet, Quoted Tweet, or reply) that this Tweet refers to if tweet expansions are available.
       def referenced_tweets
-        data["referenced_tweets"]
+        expansions&.tweets || data["referenced_tweets"]
       end
 
       # Specifies the type of attachments (if any) present in this Tweet
       #
-      # @note The field +tweet.fields=referenced_tweets+ must be specified when fetching the tweet to access this data
+      # @note The field +tweet.fields=attachments+ must be specified when fetching the tweet to access this data
       #
-      # @return TODO
+      # @return [Attachments]
       def attachments
-        @attachments
+        @attachments ||= Attachments.new(data["attachments"]["media_keys"])
+      end
+
+      # Specifies the type of attachments (if any) present in this Tweet
+      #
+      # @note The field +tweet.fields=attachments+ must be specified when fetching the tweet to access this data
+      #
+      # @return [Polls]
+      def polls
+        @polls ||= Polls.new(data["attachments"]["poll_ids"])
       end
 
       # Contains details about the location tagged by the user in this Tweet, if they specified one.
       #
-      # @note The field +tweet.fields=referenced_tweets+ must be specified when fetching the tweet to access this data
+      # @note The field +tweet.fields=geo+ must be specified when fetching the tweet to access this data
       #
-      # @return TODO
+      # @return [Geo]
       def geo
+        @geo ||= Geo.new(data["geo"])
       end
 
       # Context annotations for the Tweet.
@@ -119,15 +108,11 @@ module Tweetkit
       #
       # @see https://developer.twitter.com/en/docs/twitter-api/annotations/overview
       #
-      # @return TODO
+      # @return [ContextAnnotations]
       def context_annotations
-        @annotations.context_annotations || nil
+        @context_annotations ||= ContextAnnotations.new(data["context_annotations"])
       end
 
-      # @see entities
-      def entity_annotations
-        entities
-      end
 
       # Entity annotations for the Tweet.
       #
@@ -135,14 +120,12 @@ module Tweetkit
       #
       # @see https://developer.twitter.com/en/docs/twitter-api/annotations/overview
       #
-      # @return TODO
-      def entities
-        @annotations.entity_annotations || nil
+      # @return [EntityAnnotations]
+      def entity_annotations
+        @entity_annotations ||= EntityAnnotations.new(data["entities"])
       end
 
       # Determines whether the Tweet is withheld or otherwise
-      #
-      # @see withheld
       #
       # @return [Boolean]
       def withheld?
@@ -160,8 +143,16 @@ module Tweetkit
         data["withheld"]
       end
 
+      # Public, private, promoted, and organic metrics for the Tweet at the time of the request.
+      #
+      # @return [Tweetkit::Response::Tweet::Metrics]
       def metrics
-        Metrics.new(public_metrics: , private_metrics:, organic_metrics:, promoted_metrics:)
+        @metrics ||= Metrics.new(
+          public_metrics: data["public_metrics"], 
+          private_metrics: data["non_public_metrics"], 
+          organic_metrics: data["organic_metrics"], 
+          promoted_metrics: data["promoted_metrics"]
+        )
       end
 
       # Engagement metrics for the Tweet at the time of the request.
@@ -183,11 +174,6 @@ module Tweetkit
         metrics.private_metrics
       end
 
-      # @see private_metrics
-      def non_public_metrics
-        private_metrics
-      end
-
       # Organic engagement metrics for the Tweet at the time of the request.
       #
       # @note The field +tweet.fields=organic_metrics+ must be specified when fetching the tweet to access this data
@@ -206,16 +192,6 @@ module Tweetkit
       # @return [Hash] Engagement metrics for the Tweet at the time of the request in a promoted context.
       def promoted_metrics
         metrics.promoted_metrics
-      end
-
-      # @see possibility_sensitive
-      def nsfw?
-        possibly_sensitive
-      end
-
-      # @see possibility_sensitive
-      def sensitive?
-        possibly_sensitive
       end
 
       # Indicates if this Tweet contains URLs marked as sensitive, for example content suitable for mature audiences.
@@ -245,11 +221,6 @@ module Tweetkit
         data["reply_settings"]
       end
 
-      # @see source
-      def device
-        source
-      end
-
       # The name of the app the user Tweeted from.
       #
       # @note The field +tweet.fields=source+ must be specified when fetching the tweet to access this data
@@ -268,24 +239,15 @@ module Tweetkit
         "https://twitter.com/#{author_id}/status/#{id}"
       end
 
-      # @see ContextAnnotations
-      def context_annotations
-        @context_annotations ||= ContextAnnotations.new(data["context_annotations"])
-      end
-
-      # @see EntityAnnotations
-      def entity_annotations
-        @entity_annotations ||= EntityAnnotations.new(data["entities"])
-      end
-
-      # @see Attachments
-      def attachments
-        @attachments ||= Attachments.new(data["attachments"]["media_keys"])
-      end
-
-      def polls
-        @polls ||= Polls.new(data["attachments"]["poll_ids"])
-      end
+      alias_method :body, :text
+      alias_method :content, :text
+      alias_method :device, :source
+      alias_method :date, :created_at
+      alias_method :parent_tweet_id, :conversation_id
+      alias_method :reply_to, :in_reply_to_user_id
+      alias_method :nsfw?, :possibly_sensitive
+      alias_method :sensitive?, :possibly_sensitive
+      alias_method :non_public_metrics, :private_metrics
     end
   end
 end

@@ -71,11 +71,29 @@ module Tweetkit
     def build_request_options(options)
       options = options.dup
 
-      fields = build_fields(options)
-      options.merge!(fields) if fields
+      if include_all_fields_and_expansions?(options)
+        options.delete(:all_fields_and_expansions)
 
-      expansions = build_expansions(options)
-      options.merge!(expansions) if expansions
+        fields = build_fields({ fields: ValidFields.all_fields })
+        options.merge!(fields)
+
+        expansions = build_expansions({ expansions: ValidExpansions.all_expansions })
+        options.merge!(expansions)
+      elsif include_all_public_fields_and_expansions?(options)
+        options.delete(:all_public_fields_and_expansions)
+
+        fields = build_fields({ fields: ValidFields.all_public_fields })
+        options.merge!(fields)
+
+        expansions = build_expansions({ expansions: ValidExpansions.all_expansions })
+        options.merge!(expansions)
+      else
+        fields = build_fields(options)
+        options.merge!(fields) if fields
+
+        expansions = build_expansions(options)
+        options.merge!(expansions) if expansions
+      end
 
       options
     end
@@ -146,6 +164,16 @@ module Tweetkit
       end
 
       { "expansions" => expansions }
+    end
+
+    private
+
+    def include_all_fields_and_expansions?(options)
+      options[:all_fields_and_expansions] == true && (options[:resource] == :tweet || options[:resource] == :tweets)
+    end
+
+    def include_all_public_fields_and_expansions?(options)
+      options[:all_public_fields_and_expansions] == true && (options[:resource] == :tweet || options[:resource] == :tweets)
     end
   end
 end
