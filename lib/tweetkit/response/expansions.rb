@@ -9,39 +9,44 @@ module Tweetkit
         @expansions = expansions
       end
 
-      # @return [Tweetkit::Response::Tweet::Expansions::Media]
+      # @return [Array<Tweetkit::Response::Expansions::MediaObject>] if the Media expansion is available.
+      # @return [nil] if the Place expansion is not available.
       def media
         return if expansions["media"].nil?
 
-        @media ||= Media.new(expansions["media"])
+        @media ||= expansions["media"].collect { |media_object| MediaObject.new(media_object) }
       end
 
-      # @return [Tweetkit::Response::Tweet::Expansions::Places]
+      # @return [Array<Tweetkit::Response::Expansions::Place>] if the Places expansion is available.
+      # @return [nil] if the Place expansion is not available.
       def places
         return if expansions["places"].nil?
 
-        @places ||= Places.new(expansions["places"])
+        @places ||= expansions["places"].collect { |place| Place.new(place) }
       end
 
-      # @return [Tweetkit::Response::Tweet::Expansions::Polls]
+      # @return [Array<Tweetkit::Response::Expansions::Poll>] if the Poll expansion is available.
+      # @return [nil] if the Poll expansion is not available.
       def polls
         return if expansions["polls"].nil?
 
-        @polls ||= Polls.new(expansions["polls"])
+        @polls ||= expansions["polls"].collect { |poll| Poll.new(poll) }
       end
 
-      # @return [Tweetkit::Response::Tweets]
+      # @return [Tweetkit::Response::Tweets] if the Tweet expansion is available.
+      # @return [nil] if the Tweet expansion is not available.
       def tweets
         return if expansions["tweets"].nil?
 
-        @tweets ||= Tweets.new(expansions["tweets"])
+        @tweets ||= Tweetkit::Response::Tweets.new({ "data" => expansions["tweets"] })
       end
 
-      # @return [Tweetkit::Response::Tweet::Expansions::Users]
+      # @return [Array<Tweetkit::Response::Expansions::User>] if the User expansion is available.
+      # @return [nil] if the User expansion is not available.
       def users
         return if expansions["users"].nil?
 
-        @users ||= Users.new(expansions["users"])
+        @users ||= expansions["users"].collect { |user| User.new(user) }
       end
     end
   end

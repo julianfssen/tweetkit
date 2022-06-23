@@ -20,6 +20,7 @@ module Tweetkit
       def initialize(response, **options)
         @response = response
         @tweets = extract_tweets(response["data"])
+        assign_expansions(@tweets, expansions: response["includes"]) unless response["includes"].nil?
       end
 
       def each(*args, &block)
@@ -63,6 +64,10 @@ module Tweetkit
         else
           [Tweet.new(data)]
         end
+      end
+
+      def assign_expansions(tweets, expansions:)
+        # TODO: Think of how to assign expansions when Tweet is in multiform
       end
     end
   end

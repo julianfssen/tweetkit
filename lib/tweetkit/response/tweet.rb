@@ -4,14 +4,20 @@ module Tweetkit
     class Tweet
       attr_accessor :data, :expansions
 
-      def initialize(data)
+      def initialize(data, expansions: nil)
         if data["data"].nil?
           @data = data
         else
           @data = data["data"]
         end
 
-        @expansions = Expansions.new(data["includes"]) unless data["includes"].nil?
+        unless data["includes"].nil? && expansions.nil?
+          unless data["includes"].nil?
+            @expansions = Expansions.new(data["includes"])
+          else
+            @expansions = Expansions.new(expansions)
+          end
+        end
       end
 
       # Unique ID for this Tweet

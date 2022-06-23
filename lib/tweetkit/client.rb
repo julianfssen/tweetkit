@@ -4,7 +4,7 @@ module Tweetkit
   # @see https://developer.twitter.com/en/docs/twitter-api
   class Client
     include Base
-    include Connection
+    include Request
 
     attr_accessor :access_token, :access_token_secret, :bearer_token, :consumer_key, :consumer_secret
 

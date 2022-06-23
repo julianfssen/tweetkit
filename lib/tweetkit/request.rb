@@ -2,9 +2,9 @@ require "faraday"
 
 module Tweetkit
   # Module for creating and authenticating requests to Twitter API v2 endpoints
-  module Connection
+  module Request
     include Auth
-    include RequestOptionsBuilder
+    include OptionsBuilder
 
     BASE_URL = "https://api.twitter.com/2/".freeze
 
@@ -12,7 +12,7 @@ module Tweetkit
 
     # Performs a GET request for the specified endpoint
     #
-    # @param endpoint [String] The API endpoint to fetch, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param endpoint [String] The API endpoint to fetch, relative to {#Tweetkit::Request::BASE_URL}
     # @param options [Hash] Body and header params for the request
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
@@ -22,7 +22,7 @@ module Tweetkit
 
     # Performs a POST request for the specified endpoint
     #
-    # @param endpoint [String] The API endpoint to post to, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param endpoint [String] The API endpoint to post to, relative to {#Tweetkit::Request::BASE_URL}
     # @param options [Hash] Body and header params for the request
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
@@ -32,7 +32,7 @@ module Tweetkit
 
     # Performs a PUT request for the specified endpoint
     #
-    # @param endpoint [String] The API endpoint to post to, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param endpoint [String] The API endpoint to post to, relative to {#Tweetkit::Request::BASE_URL}
     # @param options [Hash] Body and header params for the request
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
@@ -42,7 +42,7 @@ module Tweetkit
 
     # Performs a DELETE request for the specified endpoint
     #
-    # @param endpoint [String] The API endpoint to delete to, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param endpoint [String] The API endpoint to delete to, relative to {#Tweetkit::Request::BASE_URL}
     # @param options [Hash] Body and header params for the request
     #
     # @return [Tweetkit::Response] Returns a {#Tweetkit::Response} object based on the specified endpoint
@@ -53,7 +53,7 @@ module Tweetkit
     # Creates a HTTP request to interact with the Twitter v2 API endpoints
     #
     # @param method [Symbol] The HTTP method to perform
-    # @param endpoint [String] The API endpoint to perform the request, relative to {#Tweetkit::Connection::BASE_URL}
+    # @param endpoint [String] The API endpoint to perform the request, relative to {#Tweetkit::Request::BASE_URL}
     # @param data [Hash] Body and header params for the request
     # @param options [Hash] Additional options to create the request
     #

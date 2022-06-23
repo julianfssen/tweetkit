@@ -1,6 +1,6 @@
 require_relative "../spec_helper"
 
-describe Tweetkit::RequestOptionsBuilder do
+describe Tweetkit::Request::OptionsBuilder do
   let(:client) { Tweetkit::Client.new }
 
   describe "fields builder" do
