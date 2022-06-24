@@ -19,8 +19,7 @@ module Tweetkit
 
       def initialize(response, **options)
         @response = response
-        @tweets = extract_tweets(response["data"])
-        assign_expansions(@tweets, expansions: response["includes"]) unless response["includes"].nil?
+        @tweets = extract_tweets(response["data"], expansions: response["includes"])
       end
 
       def each(*args, &block)
@@ -29,6 +28,14 @@ module Tweetkit
 
       def last
         @tweets.last
+      end
+
+      def [](key)
+        if key.kind_of?(Integer)
+          @tweets[key]
+        else
+          @tweets.send(:[], key)
+        end
       end
 
       # Returns the Tweets fetched from the given IDs
@@ -47,27 +54,14 @@ module Tweetkit
         @meta ||= Meta.new(response["meta"])
       end
 
-      # Returns the expansions data based off the expansions passed in the initial query
-      #
-      # @return [Tweetkit::Response::Tweets::Expansions] Expansions data
-      def expansions
-        return if response["includes"].nil?
-
-        @expansions ||= Expansions.new(response["includes"])
-      end
-
       private
 
-      def extract_tweets(data)
+      def extract_tweets(data, expansions:)
         if data.kind_of? Array
-          data.collect { |data| Tweet.new(data) }
+          data.collect { |data| Tweet.new(data, expansions:) }
         else
-          [Tweet.new(data)]
+          [Tweet.new(data, expansions:)]
         end
-      end
-
-      def assign_expansions(tweets, expansions:)
-        # TODO: Think of how to assign expansions when Tweet is in multiform
       end
     end
   end

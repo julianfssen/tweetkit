@@ -52,6 +52,10 @@ module Tweetkit
         data["author_id"]
       end
 
+      def author
+        expansions&.users.find { |user| user.id == author_id }
+      end
+
       # Returns the origin / root Tweet ID of the conversation (which includes direct replies, replies of replies)
       # 
       # @note The field +tweet.fields=conversation_id+ must be specified when fetching the tweet to access this data
@@ -61,6 +65,10 @@ module Tweetkit
         data["conversation_id"]
       end
 
+      def conversation
+        expansions&.tweets.find { |tweet| tweet.conversation_id == conversation_id }
+      end
+
       # If this Tweet is a reply, returns the user ID of the parent tweet's author
       # 
       # @note The expansion +expansions=in_reply_to_user_id+ must be specified when fetching the tweet to access this data
@@ -68,6 +76,10 @@ module Tweetkit
       # @return [String] If this Tweet is a Reply, indicates the user ID of the parent Tweet's author.
       def in_reply_to_user_id
         data["in_reply_to_user_id"]
+      end
+
+      def reply_to
+        expansions&.users.find { |user| user.id == in_reply_to_user_id }
       end
 
       # A list of Tweets this Tweet refers to. For example, if the parent Tweet is a Retweet, a Retweet with comment (also known as Quoted Tweet) or a Reply, it will include the related Tweet referenced to by its parent
@@ -87,6 +99,8 @@ module Tweetkit
       #
       # @return [Attachments]
       def attachments
+        return if data.dig("attachments", "media_keys").nil?
+
         @attachments ||= Attachments.new(data["attachments"]["media_keys"])
       end
 
@@ -96,6 +110,8 @@ module Tweetkit
       #
       # @return [Polls]
       def polls
+        return if data.dig("attachments", "poll_ids").nil?
+
         @polls ||= Polls.new(data["attachments"]["poll_ids"])
       end
 
@@ -105,6 +121,8 @@ module Tweetkit
       #
       # @return [Geo]
       def geo
+        return if data["geo"].nil?
+
         @geo ||= Geo.new(data["geo"])
       end
 
@@ -116,6 +134,8 @@ module Tweetkit
       #
       # @return [ContextAnnotations]
       def context_annotations
+        return if data["context_annotations"].nil?
+
         @context_annotations ||= ContextAnnotations.new(data["context_annotations"])
       end
 
@@ -128,6 +148,8 @@ module Tweetkit
       #
       # @return [EntityAnnotations]
       def entity_annotations
+        return if data["entities"].nil?
+
         @entity_annotations ||= EntityAnnotations.new(data["entities"])
       end
 
@@ -153,6 +175,8 @@ module Tweetkit
       #
       # @return [Tweetkit::Response::Tweet::Metrics]
       def metrics
+        return if data["public_metrics"].nil? && data["non_public_metrics"].nil? && data["organic_metrics"].nil? && data["promoted_metrics"].nil?
+
         @metrics ||= Metrics.new(
           public_metrics: data["public_metrics"], 
           private_metrics: data["non_public_metrics"], 
@@ -250,7 +274,6 @@ module Tweetkit
       alias_method :device, :source
       alias_method :date, :created_at
       alias_method :parent_tweet_id, :conversation_id
-      alias_method :reply_to, :in_reply_to_user_id
       alias_method :nsfw?, :possibly_sensitive
       alias_method :sensitive?, :possibly_sensitive
       alias_method :non_public_metrics, :private_metrics
