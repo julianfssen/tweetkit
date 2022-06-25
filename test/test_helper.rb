@@ -1,5 +1,8 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
 require "dotenv"
+require "minitest/autorun"
+require "tweetkit"
 
 BASE_ENV_FILE_PATH = ".env"
 
@@ -17,6 +20,3 @@ def traverse_for_env_file(env_file_path, stack_level)
 end
 
 traverse_for_env_file(BASE_ENV_FILE_PATH, 0)
-
-require "tweetkit"
-require "rspec"

@@ -1,4 +1,4 @@
-require_relative "../spec_helper"
+require "test_helper"
 
 describe Tweetkit::Client::Tweets do
   client_types = {

@@ -1,4 +1,4 @@
-require_relative "../spec_helper"
+require "test_helper"
 
 describe Tweetkit::Request::OptionsBuilder do
   let(:client) { Tweetkit::Client.new }
