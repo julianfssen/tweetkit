@@ -1,57 +1,49 @@
 require "test_helper"
 
-describe Tweetkit::Request::OptionsBuilder do
-  let(:client) { Tweetkit::Client.new }
-
-  describe "fields builder" do
-    it "accepts a :fields argument with a hash of values and returns a hash of fields correctly" do
-      options = client.build_request_options(fields: { tweet: "attachments, author_id, created_at" })
-
-      expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
-    end
-
-    context "with a standalone argument" do
-      it "accepts a comma-concatenated string of values and returns a hash of fields correctly" do
-        options = client.build_request_options(tweet_fields: "attachments, author_id, created_at")
-
-        expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
-      end
-
-      it "accepts a array of values and returns a hash of fields correctly" do
-        options = client.build_request_options(tweet_fields: ["attachments", "author_id", "created_at"])
-
-        expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
-      end
-    end
+class OptionsBuilderTest < Minitest::Test
+  def setup
+    @client = Tweetkit::Client.new
   end
 
-  describe "expansions builder" do
-    context "with an :expansions argument" do
-      it "accepts a comma-concatenated string of values and returns a hash of expansions correctly" do
-        options = client.build_request_options(expansions: "author_id, referenced_tweets.id, in_reply_to_user_id")
+  def test_fields_builder_with_hash_values
+    options = client.build_request_options(fields: { tweet: "attachments, author_id, created_at" })
 
-        expect(options["expansions"]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
-      end
-
-      it "accepts a array of values and returns a hash of expansions correctly" do
-        options = client.build_request_options(expansions: ["author_id", "referenced_tweets.id", "in_reply_to_user_id"])
-
-        expect(options["expansions"]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
-      end
-    end
+    assert_equal "attachments,author_id,created_at", options["tweet.fields"]
   end
 
-  describe "combined query" do
-    it "accepts a combination of fields and expansions and returns a hash of request options correctly" do
-      options = client.build_request_options(
-        tweet_fields: "attachments, author_id, created_at",
-        fields: { media: ["public_metrics", "duration_ms"] },
-        expansions: "author_id, referenced_tweets.id, in_reply_to_user_id"
-      )
+  def test_fields_builder_with_string_values
+    options = client.build_request_options(tweet_fields: "attachments, author_id, created_at")
 
-      expect(options["tweet.fields"]).to eq("attachments,author_id,created_at")
-      expect(options["media.fields"]).to eq("public_metrics,duration_ms")
-      expect(options["expansions"]).to eq("author_id,referenced_tweets.id,in_reply_to_user_id")
-    end
+    assert_equal "attachments,author_id,created_at", options["tweet.fields"]
+  end
+
+  def test_fields_builder_with_array_values
+    options = client.build_request_options(tweet_fields: ["attachments", "author_id", "created_at"])
+
+    assert_equal "attachments,author_id,created_at", options["tweet.fields"]
+  end
+
+  def test_expansions_builder_with_string_values
+    options = client.build_request_options(expansions: "author_id, referenced_tweets.id, in_reply_to_user_id")
+
+    assert_equal "author_id,referenced_tweets.id,in_reply_to_user_id", options["expansions"]
+  end
+
+  def test_expansions_builder_with_array_values
+    options = client.build_request_options(expansions: ["author_id", "referenced_tweets.id", "in_reply_to_user_id"])
+
+    assert_equal "author_id,referenced_tweets.id,in_reply_to_user_id", options["expansions"]
+  end
+
+  def test_fields_and_expansions_combined_query
+    options = client.build_request_options(
+      tweet_fields: "attachments, author_id, created_at",
+      fields: { media: ["public_metrics", "duration_ms"] },
+      expansions: "author_id, referenced_tweets.id, in_reply_to_user_id"
+    )
+
+    assert_equal "attachments,author_id,created_at", options["tweet.fields"] 
+    assert_equal "public_metrics,duration_ms", options["media.fields"]
+    assert_equal "author_id,referenced_tweets.id,in_reply_to_user_id", options["expansions"]
   end
 end
