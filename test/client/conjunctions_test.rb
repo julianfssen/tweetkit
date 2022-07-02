@@ -4,7 +4,7 @@ class DummyClass
   include Tweetkit::Client::Search::Conjunctions
 end
 
-class TestConjunctions < Minitest::Test
+class Tweetkit::Client::Search::ConjunctionsTest < Minitest::Test
   attr_accessor :search
 
   def setup
@@ -171,13 +171,14 @@ class TestConjunctions < Minitest::Test
   end
 
   def test_group
-    query = Proc.new do
+    query_proc = Proc.new do
       is :tweet
       contains "word", "two words"
       has_one_of :image, :link
     end
 
-    grouped_query = search.send(:group, &query)
+    # TODO
+    grouped_query = search.send(:group, &query_proc)
 
     is_query = search.is(:tweet)
     contains_query = search.contains("word", "two words")

@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Julian Foo"]
   spec.email         = ["juliandevmy@gmail.com"]
 
-  spec.summary       = %q{WIP: Simple API wrapper for Twitter's V2 API}
-  spec.description   = %q{WIP: Tweetkit is a Ruby wrapper for Twitter's V2 API}
+  spec.summary       = %q{Simple API wrapper for Twitter's V2 API}
+  spec.description   = %q{Tweetkit is a Ruby wrapper for Twitter's V2 API}
   spec.homepage      = "https://github.com/julianfssen/tweetkit"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
 

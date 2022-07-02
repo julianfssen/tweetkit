@@ -1,70 +1,61 @@
 require "test_helper"
 
-describe Tweetkit::Client::Tweets do
-  client_types = {
-    bearer_token: Tweetkit::Client.new(bearer_token: ENV["BEARER_TOKEN"]),
-    access_token: Tweetkit::Client.new(
-      consumer_key: ENV["CONSUMER_KEY"],
-      consumer_secret: ENV["CONSUMER_SECRET"],
-      access_token: ENV["ACCESS_TOKEN"],
-      access_token_secret: ENV["ACCESS_TOKEN_SECRET"],
-    ),
-  }
+class Tweetkit::Client::TweetsTest < Minitest::Test
+  TEST_TWEET_ID_1 = 1228393702244134912
+  TEST_TWEET_ID_2 = 1227640996038684673
 
-  context "with bearer token auth" do
-    let(:client) { client_types[:bearer_token] }
+  def setup
+    client_types = {
+      bearer_token: Tweetkit::Client.new(bearer_token: ENV["BEARER_TOKEN"]),
+      access_token: Tweetkit::Client.new(
+        consumer_key: ENV["CONSUMER_KEY"],
+        consumer_secret: ENV["CONSUMER_SECRET"],
+        access_token: ENV["ACCESS_TOKEN"],
+        access_token_secret: ENV["ACCESS_TOKEN_SECRET"],
+      )
+    }
 
-    describe ".tweet" do
-      it "gets a tweet" do
-        tweet = client.tweet(1228393702244134912)
-
-        expect(tweet.text).not_to be_empty
-      end
-    end
-
-    describe ".tweets" do
-      it "accepts an array of IDs and gets the tweets" do
-        response = client.tweets([1228393702244134912, 1227640996038684673])
-
-        expect(response.tweets.size).to eq(2)
-        expect(response.tweets.first.text).not_to be_empty
-      end
-
-      it "accepts comma-separated string of IDs and gets the tweets" do
-        response = client.tweets("1228393702244134912, 1227640996038684673")
-
-        expect(response.tweets.size).to eq(2)
-        expect(response.tweets.first.text).not_to be_empty
-      end
-    end
+    @bearer_token_client = client_types[:bearer_token]
+    @access_token_client = client_types[:access_token]
   end
 
-  context "when user context is required" do
-    let(:client) { client_types[:access_token] }
+  def test_tweet
+    tweet = @bearer_token_client.tweet(TEST_TWEET_ID_1)
 
-    describe ".post_tweet" do
-      it "posts text" do
-        text = generate_text
-        tweet = client.post_tweet(text: text)
-        expect(tweet.text).to eq(text)
-      end
-    end
+    assert tweet.text
+  end
 
-    describe ".delete_tweet" do
-      it "deletes a tweet" do
-        text = generate_text
-        tweet = client.post_tweet(text: text)
-        tweet_id = tweet.id.to_i
-        deleted = client.delete_tweet(tweet_id)
+  def test_tweets_from_array_of_ids
+    tweets = @bearer_token_client.tweets([TEST_TWEET_ID_1, TEST_TWEET_ID_2])
 
-        expect(deleted).to be(true)
-      end
-    end
+    assert_equal 2, tweets.count
+  end
+
+  def test_tweets_from_string_of_ids
+    tweets = @bearer_token_client.tweets("#{TEST_TWEET_ID_1}, #{TEST_TWEET_ID_2}")
+
+    assert_equal 2, tweets.count
+  end
+
+  def test_post_tweet
+    text = random_text
+    tweet = @access_token_client.post_tweet(text: text)
+
+    assert_equal text, tweet.text
+  end
+
+  def test_delete_tweet
+    text = random_text
+    tweet = @access_token_client.post_tweet(text: text)
+    tweet_id = tweet.id.to_i
+    deleted = @access_token_client.delete_tweet(tweet_id)
+
+    assert_equal true, deleted
   end
 
   private
 
-  def generate_text
+  def random_text
     random_string = rand(36 ** 8).to_s(36)
 
     "Hi! This is a random string to test the Tweetkit gem: #{random_string}"

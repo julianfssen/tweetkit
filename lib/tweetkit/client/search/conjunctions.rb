@@ -418,83 +418,75 @@ module Tweetkit
         end
       
         def group(&block)
-          Conjunctions.alias_method :original_join, :join
-          Conjunctions.alias_method :original_join_with_operator, :join_with_operator
-          Conjunctions.alias_method :original_join_with_negated_operator, :join_with_negated_operator
-      
-          def join(terms, connector:, **opts)
-            unless terms.empty?
-              terms = terms.collect do |term|
-                term = term.to_s
-                term = term.strip
-                if term.split.length > 1
-                  "\"#{term}\""
-                else
-                  term
+          klass = Class.new(SearchFactory) do
+            def join(terms, connector:, **opts)
+              unless terms.empty?
+                terms = terms.collect do |term|
+                  term = term.to_s
+                  term = term.strip
+                  if term.split.length > 1
+                    "\"#{term}\""
+                  else
+                    term
+                  end
                 end
+                terms = terms.join(connector)
+                group_terms(terms)
               end
-              terms = terms.join(connector)
-              group_terms(terms)
             end
-          end
       
-          def join_with_operator(terms, connector:, operator:, **opts)
-            unless terms.empty?
-              terms = terms.collect do |term|
-                term = term.to_s
-                term = term.strip
-                if term.split.length > 1
-                  "\"#{term}\""
-                else
-                  term
+            def join_with_operator(terms, connector:, operator:, **opts)
+              unless terms.empty?
+                terms = terms.collect do |term|
+                  term = term.to_s
+                  term = term.strip
+                  if term.split.length > 1
+                    "\"#{term}\""
+                  else
+                    term
+                  end
                 end
+                terms = terms.collect { |term| "#{operator}:#{term}" }
+                terms = terms.join(connector)
+                group_terms(terms)
               end
-              terms = terms.collect { |term| "#{operator}:#{term}" }
-              terms = terms.join(connector)
-              group_terms(terms)
             end
-          end
       
-          def join_with_negated_operator(terms, **opts)
-            unless terms.empty?
-              terms = terms.collect do |term|
-                term = term.to_s
-                term = term.strip
-                if term.split.length > 1
-                  "\"#{term}\""
-                else
-                  term
+            def join_with_negated_operator(terms, **opts)
+              unless terms.empty?
+                terms = terms.collect do |term|
+                  term = term.to_s
+                  term = term.strip
+                  if term.split.length > 1
+                    "\"#{term}\""
+                  else
+                    term
+                  end
                 end
+                terms = terms.collect { |term| "-#{term}" }
+                terms = terms.join(' ')
+                group_terms(terms)
               end
-              terms = terms.collect { |term| "-#{term}" }
-              terms = terms.join(' ')
-              group_terms(terms)
+            end
+      
+            def group_terms(term)
+              if @grouped_terms
+                @grouped_terms << term
+              else
+                @grouped_terms = []
+                @grouped_terms << term
+              end
+            end
+      
+            def combine_terms
+              @combined_grouped_terms = @grouped_terms.join(' ')
+              @combined_grouped_terms = "(#{@combined_grouped_terms})"
+              append_to_query(@combined_grouped_terms)
+              @combined_grouped_terms
             end
           end
-      
-          def group_terms(term)
-            if @grouped_terms
-              @grouped_terms << term
-            else
-              @grouped_terms = []
-              @grouped_terms << term
-            end
-          end
-      
-          def combine_terms
-            @combined_grouped_terms = @grouped_terms.join(' ')
-            @combined_grouped_terms = "(#{@combined_grouped_terms})"
-            append_to_query(@combined_grouped_terms)
-          end
-      
-          instance_eval(&block)
-          combine_terms
-      
-          Conjunctions.alias_method :join, :original_join
-          Conjunctions.alias_method :join_with_operator, :original_join_with_operator
-          Conjunctions.alias_method :join_with_negated_operator, :original_join_with_negated_operator
-      
-          @combined_grouped_terms
+
+          klass.new.instance_eval(&block).combine_terms
         end
       end
     end

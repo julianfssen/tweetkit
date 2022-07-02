@@ -11,3 +11,4 @@
 Gemfile.lock
 .config
 .ruby-version
+*.swp
