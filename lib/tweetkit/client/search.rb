@@ -31,7 +31,7 @@ module Tweetkit
 
         attr_accessor :query
 
-        def initialize(term)
+        def initialize(term = "")
           @query = term
         end
 

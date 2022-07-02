@@ -1,6 +1,7 @@
 module Tweetkit
   class Client
     module Search
+      # TODO: Document conjunctions
       module Conjunctions
         def contains(*terms)
           join(terms, connector: ' ')
@@ -486,7 +487,10 @@ module Tweetkit
             end
           end
 
-          klass.new.instance_eval(&block).combine_terms
+          klass.new.yield_self do |search_factory|
+            search_factory.instance_eval(&block)
+            search_factory.combine_terms
+          end
         end
       end
     end
