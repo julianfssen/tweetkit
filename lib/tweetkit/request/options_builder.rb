@@ -169,6 +169,7 @@ module Tweetkit
 
       private
 
+      # TODO: Add docs and test for including all fields and expansions
       def include_all_fields_and_expansions?(options)
         options[:all_fields_and_expansions] == true && (options[:resource] == :tweet || options[:resource] == :tweets)
       end

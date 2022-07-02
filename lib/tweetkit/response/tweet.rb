@@ -266,6 +266,8 @@ module Tweetkit
       #
       # @return [String] The URL to the tweet.
       def url
+        return if author_id.nil?
+
         "https://twitter.com/#{author_id}/status/#{id}"
       end
 
