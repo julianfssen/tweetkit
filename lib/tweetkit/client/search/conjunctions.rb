@@ -496,4 +496,3 @@ module Tweetkit
     end
   end
 end
-
