@@ -279,6 +279,7 @@ module Tweetkit
       alias_method :nsfw?, :possibly_sensitive
       alias_method :sensitive?, :possibly_sensitive
       alias_method :non_public_metrics, :private_metrics
+      alias_method :language, :lang
     end
   end
 end
