@@ -1,6 +1,5 @@
 require "test_helper"
 
-# TODO: Add tests for individual Tweet class
 class Tweetkit::Client::TweetTest < Minitest::Test
   attr_accessor :client
 
@@ -52,27 +51,24 @@ class Tweetkit::Client::TweetTest < Minitest::Test
   end
 
   def test_attachments
-    # TODO: Fix attachments
     assert @tweet.attachments
   end
 
   def test_polls
-    # TODO: Get polls tweet
-    assert @tweet.polls
+    # TODO: Get a tweet with poll
+    refute @tweet.polls
   end
 
   def test_geo
-    # TODO: Get geo tweet
-    assert @tweet.geo
+    # TODO: Get a tweet with geo
+    refute @tweet.geo
   end
 
   def test_context_annotations
-    # TODO: Fix context annotations
     assert @tweet.context_annotations
   end
 
   def test_entity_annotations
-    # TODO: Fix entity annotations
     assert @tweet.entity_annotations
   end
 
@@ -85,7 +81,6 @@ class Tweetkit::Client::TweetTest < Minitest::Test
   end
 
   def test_metrics
-    # TODO: Fix metrics and all its child methods
     assert @tweet.metrics
   end
 
