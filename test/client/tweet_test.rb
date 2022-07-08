@@ -4,6 +4,8 @@ class Tweetkit::Client::TweetTest < Minitest::Test
   attr_accessor :client
 
   TWEET_ID = 1212092628029698048
+  GEO_TWEET_ID = 1136048014974423040
+  POLL_TWEET_ID = 1199786642791452673
 
   def setup
     @client = Tweetkit::Client.new(bearer_token: ENV["BEARER_TOKEN"])
@@ -55,13 +57,13 @@ class Tweetkit::Client::TweetTest < Minitest::Test
   end
 
   def test_polls
-    # TODO: Get a tweet with poll
-    refute @tweet.polls
+    @tweet = @client.tweet(POLL_TWEET_ID, all_public_fields_and_expansions: true)
+    assert @tweet.polls
   end
 
   def test_geo
-    # TODO: Get a tweet with geo
-    refute @tweet.geo
+    @tweet = @client.tweet(GEO_TWEET_ID, all_public_fields_and_expansions: true)
+    assert @tweet.geo
   end
 
   def test_context_annotations

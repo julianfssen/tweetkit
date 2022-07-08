@@ -159,7 +159,7 @@ module Tweetkit
       def polls
         return if poll_ids.nil?
 
-        @polls ||= Polls.new(data["attachments"]["poll_ids"])
+        expansions&.polls
       end
 
       # Contains details about the location tagged by the user in this Tweet, if they specified one.
