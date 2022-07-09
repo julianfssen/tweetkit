@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ClientTest < Minitest::Test
+class Tweetkit::ClientTest < Minitest::Test
   def test_new_client
     client = Tweetkit::Client.new(
       access_token: ENV["ACCESS_TOKEN"], 

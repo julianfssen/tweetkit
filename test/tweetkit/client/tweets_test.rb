@@ -37,11 +37,47 @@ class Tweetkit::Client::TweetsTest < Minitest::Test
     assert_equal 2, tweets.count
   end
 
+  def test_tweet_fails_with_invalid_id_args
+    assert_raises(Tweetkit::Error::ClientError) do
+      @bearer_token_client.tweet("fail")
+    end
+  end
+
+  def test_tweet_fails_with_invalid_options
+    assert_raises(Tweetkit::Error::ClientError) do
+      @bearer_token_client.tweet(TEST_TWEET_ID_1, fail: true)
+    end
+  end
+
+  def test_tweets_fails_with_invalid_id_args
+    assert_raises(Tweetkit::Error::ClientError) do
+      @bearer_token_client.tweets("fail")
+    end
+
+    assert_raises(Tweetkit::Error::ClientError) do
+      @bearer_token_client.tweets(["fail"])
+    end
+  end
+
+  def test_tweets_fails_with_invalid_options
+    assert_raises(Tweetkit::Error::ClientError) do
+      @bearer_token_client.tweets([TEST_TWEET_ID_1], fail: true)
+    end
+  end
+
   def test_post_tweet
     text = random_text
     tweet = @access_token_client.post_tweet(text: text)
 
     assert_equal text, tweet.text
+  end
+
+  def test_post_tweet_fails_with_invalid_options
+    text = random_text
+
+    assert_raises(Tweetkit::Error::ClientError) do
+      @access_token_client.post_tweet(text: text, fail: true)
+    end
   end
 
   def test_delete_tweet
@@ -51,6 +87,12 @@ class Tweetkit::Client::TweetsTest < Minitest::Test
     deleted = @access_token_client.delete_tweet(tweet_id)
 
     assert_equal true, deleted
+  end
+
+  def test_delete_tweet_fails_for_other_users_tweets
+    assert_raises(Tweetkit::Error::ClientError) do
+      @access_token_client.delete_tweet(TEST_TWEET_ID_1)
+    end
   end
 
   private

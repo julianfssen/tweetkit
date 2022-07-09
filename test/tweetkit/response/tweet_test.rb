@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Tweetkit::Client::TweetTest < Minitest::Test
+class Tweetkit::Response::TweetTest < Minitest::Test
   attr_accessor :client
 
   TWEET_ID = 1212092628029698048

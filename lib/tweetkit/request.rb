@@ -113,8 +113,8 @@ module Tweetkit
     def format_error_message(error)
       error_obj = JSON.parse(error.response_body)
 
-      <<-ERR
-        Error: #{error_obj.dig("title")} (#{error_obj.dig("status")})
+      <<~ERR 
+        #{error_obj.dig("title")} (#{error_obj.dig("status")})
         Description: #{error_obj.dig("detail")}
         Error Info: #{error_obj.dig("errors", 0, "message")}
         Error Link: #{error_obj.dig("type")}
