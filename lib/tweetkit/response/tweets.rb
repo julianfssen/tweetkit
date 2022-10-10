@@ -15,6 +15,9 @@ module Tweetkit
       # @!method prev_token
       #   @see Tweetkit::Response::Tweets::Meta#prev_token
       #   @return [String]
+      # @!method previous_token
+      #   @see Tweetkit::Response::Tweets::Meta#previous_token
+      #   @return [String]
       def_delegators :meta, :next_token, :prev_token, :previous_token
 
       def initialize(response, **options)

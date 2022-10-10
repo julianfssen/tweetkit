@@ -1,8 +1,6 @@
 require "test_helper"
 
 class Tweetkit::Response::TweetTest < Minitest::Test
-  attr_accessor :client
-
   TWEET_ID = 1212092628029698048
   GEO_TWEET_ID = 1136048014974423040
   POLL_TWEET_ID = 1199786642791452673
