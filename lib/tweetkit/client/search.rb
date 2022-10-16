@@ -58,8 +58,8 @@ module Tweetkit
       # @example Searching by passing in a block:
       #   client.search do
       #     is :retweet
-      #     contains 'elon', 'tesla'
-      #     not_from '@bbc'
+      #     contains "elon", "tesla"
+      #     not_from "@bbc"
       #   end
       #
       # @example Searching by passing in a Twitter query:
@@ -67,7 +67,7 @@ module Tweetkit
       def search(query = "", type: :tweet, **options, &block)
         search = SearchFactory.new(query)
         search.evaluate(&block) if block_given?
-        get("tweets/search/recent", **options.merge!({ query: search.query }))
+        get("tweets/search/recent", resource: :tweets, **options.merge!({ query: search.query }))
       end
     end
   end

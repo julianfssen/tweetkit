@@ -19,7 +19,7 @@ module Tweetkit
       #
       # @return [Tweetkit::Response::Tweet] An instance of {#Tweetkit::Response::Tweet}
       def tweet(id, **options)
-        get "tweets/#{id}", resource: :tweet, **options
+        get("tweets/#{id}", resource: :tweet, **options)
       end
 
       # Returns a collection of Tweets with the given IDs
@@ -43,7 +43,7 @@ module Tweetkit
           ids = ids.delete(" ")
         end
 
-        get "tweets", ids: ids, resource: :tweets, **options
+        get("tweets", ids: ids, resource: :tweets, **options)
       end
 
       # Posts a Tweet with the given content
@@ -58,7 +58,7 @@ module Tweetkit
       #
       # @return [Tweetkit::Response::Tweet] An instance of +Tweetkit::Response::Tweet+ of the posted Tweet
       def post_tweet(text: nil, **options)
-        post "tweets", resource: :tweet, text: text, **options
+        post("tweets", resource: :tweet, text: text, **options)
       end
 
       # Deletes a Tweet with the given ID
@@ -71,7 +71,7 @@ module Tweetkit
       #
       # @return [Boolean] Returns +true+ if the Tweet is deleted, +false+ if otherwise.
       def delete_tweet(id)
-        delete "tweets/#{id}"
+        delete("tweets/#{id}")
       end
     end
   end

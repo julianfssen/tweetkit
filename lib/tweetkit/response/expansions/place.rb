@@ -66,8 +66,6 @@ module Tweetkit
         def place_type
           place["place_type"]
         end
-
-        alias_method :place, :place_type
       end
     end
   end
