@@ -16,6 +16,18 @@ module Tweetkit
           @context_annotations.each(*args, &block)
         end
 
+        def last
+          @tweets.last
+        end
+
+        def [](key)
+          if key.kind_of?(Integer)
+            @context_annotations[key]
+          else
+            @context_annotations.send(:[], key)
+          end
+        end
+
         class ContextAnnotation
           def initialize(context_annotation)
             @context_annotation = context_annotation
