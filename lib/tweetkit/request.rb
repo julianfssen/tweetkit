@@ -92,7 +92,8 @@ module Tweetkit
                    connection.delete(endpoint, data)
                  end
 
-      Tweetkit::Response.build_resource(response, resource: resource, method: method)
+      response
+      # Tweetkit::Response.build_resource(response, resource: resource, method: method)
     rescue Faraday::Error => error
       message = format_error_message(error)
 

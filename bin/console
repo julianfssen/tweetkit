@@ -4,6 +4,7 @@ require "bundler/setup"
 require "dotenv"
 require "irb"
 require "tweetkit"
+require "twitter_mock"
 
 BASE_ENV_FILE_PATH = ".env"
 
@@ -15,6 +16,9 @@ BASE_ENV_FILE_PATH = ".env"
 # Pry.start
 
 Dotenv.load(BASE_ENV_FILE_PATH)
+
+PUBLIC_TWEET_ID_1 = 1212092628029698048
+PUBLIC_TWEET_ID_2 = 1199786642791452673
 
 def reload!
   puts 'Reloading ...'
@@ -35,11 +39,11 @@ def client
 end
 
 def tweet
-  @tweet ||= client.tweet(1212092628029698048, all_public_fields_and_expansions: true)
+  @tweet ||= client.tweet(PUBLIC_TWEET_ID_1, all_public_fields_and_expansions: true)
 end
 
 def tweets
-  @tweets ||= client.tweets([1212092628029698048, 1199786642791452673], all_public_fields_and_expansions: true)
+  @tweets ||= client.tweets([PUBLIC_TWEET_ID_1, PUBLIC_TWEET_ID_2], all_public_fields_and_expansions: true)
 end
 
 IRB.start(__FILE__)

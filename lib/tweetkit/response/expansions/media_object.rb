@@ -108,10 +108,16 @@ module Tweetkit
         #
         # @return [Array]
         def variants
-          media_object["variants"]
+          media_object["variants"].map do |object|
+            object.each do |key, value|
+              object.define_singleton_method(key) { value }
+            end
+            object
+          end
         end
 
         alias_method :duration, :duration_ms
+        alias_method :key, :media_key
         alias_method :private_metrics, :non_public_metrics
         alias_method :preview_url, :preview_image_url
       end

@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
+require "debug"
 require "dotenv"
 require "minitest/autorun"
 require "minitest/hooks/default"
