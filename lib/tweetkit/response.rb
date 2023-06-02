@@ -30,8 +30,7 @@ module Tweetkit
       end
 
       def parse_response(response)
-        @original_response = response.body
-        @response = JSON.parse(@original_response)
+        @response = response.body
       end
 
       def extract_and_save_tweets
