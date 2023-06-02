@@ -542,12 +542,14 @@ module Tweetkit
           end
 
           class User
-            attr_accessor :id, :name, :username
+            attr_accessor :id, :name, :username, :verified, :public_metrics
 
             def initialize(user)
               @id = user['id']
               @name = user['name']
               @username = user['username']
+              @verified = user['verified']
+              @public_metrics = user['public_metrics']
             end
           end
         end
