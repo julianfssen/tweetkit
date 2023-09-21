@@ -4,6 +4,16 @@
 
 The gem is currently in development and is **NOT** recommended for production use. [I'm currently working on a beta branch with complete docs, tests, and updated endpoints](https://github.com/julianfssen/tweetkit/tree/v-0.3.0-beta-dev). Feel free to try the beta branch out!
 
+## I want to use a Twitter / X gem in production
+
+I recommend you to use the [`x-ruby`](https://github.com/sferik/x-ruby) gem which is maintained by `sferik`, the original author of the `twitter` gem. 
+
+After Twitter updated their API policy, I no longer have access to almost all API endpoints without forking out $100 per month, which is very expensive for me at the moment.
+
+I'll be thinking of ways to further improve this gem but until then, the `x-ruby` gem I mentioned above is a much better candidate for production use.
+
+---
+
 `Tweetkit` is a Ruby wrapper for [Twitter's V2 API](https://developer.twitter.com/en/docs/twitter-api/early-access).
 
 `Tweetkit` is inspired by the original [Twitter gem](https://github.com/sferik/twitter) and the [Octokit ecosystem](https://github.com/octokit/octokit.rb).
