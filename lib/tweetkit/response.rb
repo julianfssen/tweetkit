@@ -7,7 +7,7 @@ module Tweetkit
     class Tweets
       include Enumerable
 
-      attr_accessor :annotations, :connection, :context_annotations, :entity_annotations, :expansions, :fields, :meta, :options, :original_response, :response, :tweets, :twitter_request
+      attr_accessor :annotations, :connection, :context_annotations, :entity_annotations, :expansions, :fields, :meta, :options, :original_response, :response, :tweets, :user, :twitter_request
 
       def initialize(response, **options)
         parse! response, **options
@@ -15,8 +15,13 @@ module Tweetkit
 
       def parse!(response, **options)
         parse_response response
-        extract_and_save_tweets
-        return unless @tweets
+        if response.env.url.to_s.include?('/users/me')
+          extract_and_save_user
+          return unless @user
+        else
+          extract_and_save_tweets
+          return unless @tweets
+        end
 
         extract_and_save_meta
         extract_and_save_expansions
@@ -38,6 +43,11 @@ module Tweetkit
         else
           @tweets = nil
         end
+      end
+
+      def extract_and_save_user
+        @user = nil
+        @user = Tweetkit::Response::Tweets::Expansions::Users::User.new(@response['data']) if (data = @response['data'])
       end
 
       def extract_and_save_meta
@@ -532,12 +542,14 @@ module Tweetkit
           end
 
           class User
-            attr_accessor :id, :name, :username
+            attr_accessor :id, :name, :username, :verified, :public_metrics
 
             def initialize(user)
               @id = user['id']
               @name = user['name']
               @username = user['username']
+              @verified = user['verified']
+              @public_metrics = user['public_metrics']
             end
           end
         end
